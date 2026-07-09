@@ -3,10 +3,37 @@
 import { Clock, CalendarDays, ArrowRight } from 'lucide-react'
 import Link from 'next/link'
 import { upcomingClasses } from '../Data'
+import { useEffect, useState } from 'react';
+import axios from 'axios';
 
 
 
 export default function page() {
+   const [upcoming, setUpcoming] = useState([]);
+    const [loading, setLoading] = useState(true);
+  
+    useEffect(() => {
+      fetchUpcoming();
+    }, []);
+  
+    const fetchUpcoming = async () => {
+      try {
+        setLoading(true);
+  
+        const { data } = await axios.get("/api/upcoming");
+  
+        if (data.success) {
+          setUpcoming(data.data);
+        } else {
+          toast.error(data.message);
+        }
+      } catch (error) {
+        console.error(error);
+        toast.error("Failed to load UpcomingClass");
+      } finally {
+        setLoading(false);
+      }
+    };
   return (
     <section className="py-24 bg-gradient-to-b from-slate-50 to-white">
       <div className="mx-auto max-w-7xl px-6">
@@ -29,9 +56,9 @@ export default function page() {
 
         {/* Cards */}
         <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
-          {upcomingClasses.map((item) => (
+          {upcoming.map((item) => (
             <div
-              key={item.id}
+              key={item._id}
               className="group rounded-3xl bg-white p-8 shadow-lg transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl"
             >
               {/* Status badge */}

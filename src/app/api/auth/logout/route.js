@@ -1,0 +1,104 @@
+import { NextResponse } from "next/server";
+import bcrypt from "bcryptjs";
+import User from "@/models/User";
+import jwt from "jsonwebtoken";
+import dbConnect from "@/lib/db";
+
+export async function POST(request) {
+  try {
+    // Connect to MongoDB
+    await dbConnect();
+
+    // Get request body
+    const { email, password } = await request.json();
+
+    // Validation
+    if (!email || !password) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Email and password are required.",
+        },
+        { status: 400 }
+      );
+    }
+
+    // Find user
+    const user = await User.findOne({
+      email: email.toLowerCase(),
+    });
+
+    if (!user) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Invalid email or password.",
+        },
+        { status: 401 }
+      );
+    }
+
+    // Compare password
+    const isMatch = await bcrypt.compare(password, user.password);
+
+    if (!isMatch) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Invalid email or password.",
+        },
+        { status: 401 }
+      );
+    }
+
+    // Generate JWT Token
+    const token = jwt.sign(
+      {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+      },
+      process.env.JWT_SECRET,
+      {
+        expiresIn: "7d",
+      }
+    );
+
+    // Create response
+    const response = NextResponse.json(
+      {
+        success: true,
+        message: "Login successful.",
+        user: {
+          id: user._id,
+          name: user.name,
+          email: user.email,
+        },
+      },
+      { status: 200 }
+    );
+
+    // Set HttpOnly Cookie
+    response.cookies.set({
+      name: "token",
+      value: token,
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: 60 * 60 * 24 * 7, // 7 days
+      path: "/",
+    });
+
+    return response;
+  } catch (error) {
+    console.error("Login Error:", error);
+
+    return NextResponse.json(
+      {
+        success: false,
+        message: "Internal Server Error.",
+      },
+      { status: 500 }
+    );
+  }
+}

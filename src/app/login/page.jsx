@@ -1,131 +1,177 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import Link from 'next/link'
-import { Eye, EyeOff, Mail, Lock } from 'lucide-react'
+import { useState } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import axios from "axios";
+import { useForm } from "react-hook-form";
+import { toast } from "react-toastify";
+import { Mail, Lock, Eye, EyeOff, Loader2 } from "lucide-react";
 
-export default function LoginPage() {
-  const [showPassword, setShowPassword] = useState(false)
-  const [form, setForm] = useState({
-    email: '',
-    password: '',
-  })
+export default function page() {
+  const router = useRouter();
 
-  const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value })
-  }
+  const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e) => {
-    e.preventDefault()
-    console.log(form)
-    alert('Login successful!')
-  }
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm();
+
+  const onSubmit = async (formData) => {
+    setLoading(true);
+
+    try {
+      const { data } = await axios.post(
+        "/api/auth/login",
+        formData,
+        {
+          withCredentials: true,
+        }
+      );
+
+      toast.success(data.message);
+
+      reset();
+
+      if (data.user.role === "admin") {
+        router.push("/admin");
+      } else if (data.user.role === "instructor") {
+        router.push("/instructor");
+      } else {
+        router.push("/student");
+      }
+
+      router.refresh();
+    } catch (error) {
+      toast.error(
+        error.response?.data?.message || "Login failed."
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <section className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#1877AE] via-[#1C8BCA] to-[#0E5C89] px-6">
+      <div className="w-full max-w-md bg-white rounded-3xl shadow-2xl p-8">
+        <h2 className="text-3xl font-bold text-center text-gray-900">
+          Login
+        </h2>
 
-      <div className="w-full max-w-4xl grid md:grid-cols-2 bg-white/10 backdrop-blur-xl rounded-3xl shadow-2xl overflow-hidden">
+        <p className="text-center text-gray-500 mt-2">
+          Login to your account
+        </p>
 
-        {/* LEFT SIDE - INFO */}
-        <div className="hidden md:flex flex-col justify-center p-10 text-white">
-
-          <h1 className="text-4xl font-black">
-            Welcome Back 👋
-          </h1>
-
-          <p className="mt-4 text-blue-100 leading-7">
-            Login to access your courses, enrollments, and learning dashboard
-            at Sky Solutions Computer Institute.
-          </p>
-
-          <div className="mt-8 space-y-3 text-sm text-blue-100">
-            <p>✔ Access all courses</p>
-            <p>✔ Track your progress</p>
-            <p>✔ Download certificates</p>
-          </div>
-
-        </div>
-
-        {/* RIGHT SIDE - FORM */}
-        <div className="bg-white p-10">
-
-          <h2 className="text-3xl font-bold text-gray-900">
-            Login
-          </h2>
-
-          <p className="text-gray-500 mt-2">
-            Please enter your details
-          </p>
-
-          <form onSubmit={handleSubmit} className="mt-8 space-y-5">
-
-            {/* EMAIL */}
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          className="mt-8 space-y-5"
+        >
+          {/* Email */}
+          <div>
             <div className="relative">
-              <Mail className="absolute left-3 top-3 text-gray-400" size={20} />
+              <Mail
+                className="absolute left-3 top-3.5 text-gray-400"
+                size={20}
+              />
 
               <input
                 type="email"
-                name="email"
                 placeholder="Email Address"
-                value={form.email}
-                onChange={handleChange}
+                {...register("email", {
+                  required: "Email is required",
+                })}
                 className="w-full pl-10 pr-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-[#1C8BCA]"
-                required
               />
             </div>
 
-            {/* PASSWORD */}
+            {errors.email && (
+              <p className="text-red-500 text-sm mt-1">
+                {errors.email.message}
+              </p>
+            )}
+          </div>
+
+          {/* Password */}
+          <div>
             <div className="relative">
-              <Lock className="absolute left-3 top-3 text-gray-400" size={20} />
+              <Lock
+                className="absolute left-3 top-3.5 text-gray-400"
+                size={20}
+              />
 
               <input
-                type={showPassword ? 'text' : 'password'}
-                name="password"
+                type={showPassword ? "text" : "password"}
                 placeholder="Password"
-                value={form.password}
-                onChange={handleChange}
+                {...register("password", {
+                  required: "Password is required",
+                })}
                 className="w-full pl-10 pr-10 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-[#1C8BCA]"
-                required
               />
 
               <button
                 type="button"
-                onClick={() => setShowPassword(!showPassword)}
                 className="absolute right-3 top-3 text-gray-500"
+                onClick={() =>
+                  setShowPassword(!showPassword)
+                }
               >
-                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                {showPassword ? (
+                  <EyeOff size={20} />
+                ) : (
+                  <Eye size={20} />
+                )}
               </button>
             </div>
 
-            {/* FORGOT PASSWORD */}
-            <div className="flex justify-end text-sm">
-              <Link href="#" className="text-[#1C8BCA] hover:underline">
-                Forgot password?
-              </Link>
-            </div>
+            {errors.password && (
+              <p className="text-red-500 text-sm mt-1">
+                {errors.password.message}
+              </p>
+            )}
+          </div>
 
-            {/* BUTTON */}
-            <button
-              type="submit"
-              className="w-full bg-[#1C8BCA] text-white py-3 rounded-xl font-semibold hover:bg-sky-700 transition"
+          {/* Forgot Password */}
+          <div className="flex justify-end">
+            <Link
+              href="/forgot-password"
+              className="text-sm text-[#1C8BCA] hover:underline"
             >
-              Login
-            </button>
-
-          </form>
-
-          {/* SIGNUP */}
-          <p className="mt-6 text-center text-gray-500 text-sm">
-            Don’t have an account?{' '}
-            <Link href="/register" className="text-[#1C8BCA] font-semibold">
-              Sign up
+              Forgot Password?
             </Link>
-          </p>
+          </div>
 
-        </div>
+          {/* Login Button */}
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full bg-[#1C8BCA] text-white py-3 rounded-xl font-semibold hover:bg-sky-700 transition disabled:opacity-60 flex items-center justify-center gap-2"
+          >
+            {loading ? (
+              <>
+                <Loader2 className="animate-spin" size={18} />
+                Logging in...
+              </>
+            ) : (
+              "Login"
+            )}
+          </button>
+        </form>
 
+        {/* Register */}
+        <p className="mt-6 text-center text-gray-500 text-sm">
+          Don't have an account?{" "}
+          <Link
+            href="/register"
+            className="text-[#1C8BCA] font-semibold hover:underline"
+          >
+            Register
+          </Link>
+        </p>
       </div>
-
     </section>
-  )
+  );
 }

@@ -2,11 +2,6 @@ import mongoose from "mongoose";
 
 const EnrollmentSchema = mongoose.Schema(
   {
-    student: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-    },
-
     course: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Course",
@@ -50,11 +45,6 @@ const EnrollmentSchema = mongoose.Schema(
     },
 
     address: {
-      type: String,
-      trim: true,
-    },
-
-    qualification: {
       type: String,
       trim: true,
     },

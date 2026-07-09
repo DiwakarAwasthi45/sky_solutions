@@ -4,12 +4,100 @@ import { ArrowRight,  Star,
     CheckCircle2, ImageIcon,  MapPin, Phone, Mail, Send
  } from "lucide-react";
 import Image from "next/image";
-import {  facilities, GALLERY, SERVICES, testimonials } from "./Data";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import gsap from "gsap";
+import axios from "axios";
 
  function page() {
+   const [facilities, setFacilities] = useState([]);
+      const [testimonials, setTestimonials] = useState([]);
+            const [gallery, setGallery] = useState([]);
+              const [services, setServices] = useState([]);
+
+    const [loading, setLoading] = useState(true);
+  
+ 
+  const fetchServices = async () => {
+    try {
+      setLoading(true);
+
+      const { data } = await axios.get("/api/services");
+
+      if (data.success) {
+        setServices(data.data);
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to load services");
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+    const fetchFacilities = async () => {
+      try {
+        setLoading(true);
+  
+        const { data } = await axios.get("/api/facilities");
+  
+        if (data.success) {
+          setFacilities(data.data);
+        } else {
+          toast.error(data.message);
+        }
+      } catch (error) {
+        console.error(error);
+        toast.error("Failed to load facilities");
+      } finally {
+        setLoading(true);
+      }
+    };
+
+     const fetchTestimonials = async () => {
+      try {
+        setLoading(true);
+  
+        const { data } = await axios.get("/api/testimonials");
+  
+        if (data.success) {
+          setTestimonials(data.data);
+        } else {
+          toast.error(data.message);
+        }
+      } catch (error) {
+        console.error(error);
+        toast.error("Failed to load testimonials");
+      } finally {
+        setLoading(true);
+      }
+    };
+
+      const fetchGallery = async () => {
+      try {
+        setLoading(true);
+  
+        const { data } = await axios.get("/api/gallery");
+  
+        if (data.success) {
+          setGallery(data.data);
+        } else {
+          toast.error(data.message);
+        }
+      } catch (error) {
+        console.error(error);
+        toast.error("Failed to load gallery");
+      } finally {
+        setLoading(true);
+      }
+    };
+
   useEffect(() => {
+    fetchFacilities()
+    fetchTestimonials()
+    fetchGallery()
+    fetchServices()
   const tl = gsap.timeline({
     defaults: {
       ease: "power3.out",
@@ -268,9 +356,9 @@ import gsap from "gsap";
 
     {/* Service Cards */}
     <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
-      {SERVICES.map((service) => (
+      {services.map((service) => (
         <div
-          key={service.id}
+          key={service._id}
           className="group overflow-hidden rounded-3xl bg-white shadow-lg transition-all duration-500 hover:-translate-y-3 hover:shadow-2xl"
         >
           {/* Image */}
@@ -427,9 +515,9 @@ import gsap from "gsap";
 
         {/* Images */}
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {GALLERY.map((item) => (
+          {gallery.map((item) => (
             <div
-              key={item.id}
+              key={item._id}
               className="group relative overflow-hidden rounded-3xl shadow-lg"
             >
               <img
@@ -484,9 +572,9 @@ import gsap from "gsap";
         </div>
 
     <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
-  {facilities.map((facility, index) => (
+  {facilities.map((facility) => (
     <div
-      key={index}
+      key={facility._id}
       className="group rounded-3xl bg-white overflow-hidden shadow-lg transition-all duration-500 hover:-translate-y-3 hover:shadow-2xl"
     >
       {/* Image */}
@@ -549,7 +637,7 @@ import gsap from "gsap";
         <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
           {testimonials.map((item) => (
             <div
-              key={item.id}
+              key={item._id}
               className="group rounded-3xl bg-white p-6 shadow-lg transition-all duration-500 hover:-translate-y-3 hover:shadow-2xl"
             >
               {/* Profile */}

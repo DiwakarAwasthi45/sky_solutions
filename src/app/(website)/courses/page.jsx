@@ -1,9 +1,35 @@
 "use client";
 
+import axios from "axios";
 import Link from "next/link";
-import { Courses } from "../Data";
+import { useEffect, useState } from "react";
 
 export default function page() {
+    const [courses, setCourses] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchCourses();
+  }, []);
+
+  const fetchCourses = async () => {
+    try {
+      setLoading(true);
+
+      const { data } = await axios.get("/api/courses");
+
+      if (data.success) {
+        setCourses(data.data);
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to load courses");
+    } finally {
+      setLoading(false);
+    }
+  };
   return (
     <section className="py-24 bg-gradient-to-b from-sky-50 via-white to-white">
       <div className="max-w-7xl mx-auto px-6">
@@ -21,9 +47,9 @@ export default function page() {
         {/* Grid */}
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-10">
 
-          {Courses.map((course) => (
+          {courses.map((course) => (
             <Link href={`/courses/${course.slug}`}
-              key={course.id}
+              key={course._id}
               className="group bg-white rounded-3xl shadow-md overflow-hidden hover:shadow-2xl transition duration-500 hover:-translate-y-2"
             >
 

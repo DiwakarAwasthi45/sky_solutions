@@ -27,10 +27,16 @@ const menuItems = [
     icon: BookOpen,
   },
   {
+  title: "Upcoming Classes",
+  href: "/admin/upcoming",
+  icon: CalendarDays,
+},
+  {
     title: "Services",
     href: "/admin/services",
     icon: Briefcase,
   },
+   
   {
     title: "Gallery",
     href: "/admin/gallery",
@@ -53,9 +59,10 @@ const menuItems = [
   },
   {
     title: "Enrollment",
-    href: "/admin/enrollment",
+    href: "/admin/enrollments",
     icon: CalendarDays,
   },
+   
   {
     title: "Settings",
     href: "/admin/settings",

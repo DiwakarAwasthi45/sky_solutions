@@ -6,7 +6,7 @@ import { useForm, useFieldArray } from "react-hook-form";
 import axios from "axios";
 import { toast } from "react-toastify";
 
-export default function EditCoursePage() {
+export default function page() {
   const router = useRouter();
   const params = useParams();
 
