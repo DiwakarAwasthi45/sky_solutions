@@ -111,11 +111,6 @@ Image
 <th className="p-3 text-left">
 Title
 </th>
-
-<th className="p-3 text-left">
-Category
-</th>
-
 <th className="p-3 text-left">
 Action
 </th>
@@ -157,16 +152,6 @@ className="w-20 h-16 rounded object-cover"
 {item.title}
 
 </td>
-
-
-
-<td className="p-3">
-
-{item.category || "-"}
-
-</td>
-
-
 
 <td className="p-3">
 

@@ -12,6 +12,7 @@ import Link from "next/link";
 import { Courses } from "@/app/(website)/Data";
 
 export default function page() {
+  
       const { slug } = useParams();
    const course = Courses.find((item) => item.slug === slug);
 

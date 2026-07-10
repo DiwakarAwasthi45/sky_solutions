@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { useForm } from "react-hook-form";
@@ -23,12 +23,18 @@ function SectionHeader({ icon: Icon, title }) {
 
 export default function Page() {
   const router = useRouter();
+  const params = useParams();
+  const id = params.id;
+
   const [loading, setLoading] = useState(false);
+  const [fetchLoading, setFetchLoading] = useState(true);
   const [imagePreview, setImagePreview] = useState(null);
 
   const {
     register,
     handleSubmit,
+    reset,
+    setValue,
     formState: { errors },
   } = useForm({
     defaultValues: {
@@ -41,9 +47,11 @@ export default function Page() {
     },
   });
 
-  const { onChange: onImageChange, ...imageRegister } = register("image", {
-    required: "Testimonial image is required",
-  });
+  const { onChange: onImageChange, ...imageRegister } = register("image");
+
+  useEffect(() => {
+    if (id) fetchTestimonial();
+  }, [id]);
 
   useEffect(() => {
     return () => {
@@ -53,15 +61,44 @@ export default function Page() {
     };
   }, [imagePreview]);
 
+  const fetchTestimonial = async () => {
+    try {
+      const res = await axios.get(`/api/testimonials/${id}`);
+      const testimonial = res.data.data;
+
+      reset({
+        name: testimonial.name || "",
+        course: testimonial.course || "",
+        message: testimonial.message || "",
+        rating: testimonial.rating ?? 5,
+        status: testimonial.status ?? true,
+        image: null,
+      });
+
+      setValue("status", testimonial.status ? "true" : "false");
+      setValue("rating", String(testimonial.rating ?? 5));
+
+      if (testimonial.image) {
+        setImagePreview(testimonial.image);
+      } else {
+        setImagePreview(null);
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to load testimonial");
+    } finally {
+      setFetchLoading(false);
+    }
+  };
+
   const handleImagePick = (e) => {
     const file = e.target.files?.[0];
-    if (!file) {
-      setImagePreview(null);
-      return;
-    }
+    if (!file) return;
+
     if (imagePreview?.startsWith("blob:")) {
       URL.revokeObjectURL(imagePreview);
     }
+
     setImagePreview(URL.createObjectURL(file));
   };
 
@@ -75,15 +112,18 @@ export default function Page() {
       formData.append("message", data.message);
       formData.append("rating", data.rating);
       formData.append("status", data.status);
-      formData.append("image", data.image[0]);
 
-      const res = await axios.post("/api/testimonials", formData);
+      if (data.image?.[0]) {
+        formData.append("image", data.image[0]);
+      }
+
+      const res = await axios.put(`/api/testimonials/${id}`, formData);
 
       if (res.data.success) {
-        toast.success("Testimonial created successfully");
+        toast.success("Testimonial updated successfully");
         router.push("/admin/testimonials");
       } else {
-        toast.error(res.data.message || "Failed to create testimonial");
+        toast.error(res.data.message || "Failed to update testimonial");
       }
     } catch (error) {
       console.error(error);
@@ -93,15 +133,23 @@ export default function Page() {
     }
   };
 
+  if (fetchLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <Loader2 className="animate-spin text-[#1C8BCA]" size={40} />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gray-50 py-10">
       <div className="max-w-5xl mx-auto px-5">
         <div className="mb-8">
           <h1 className="text-3xl font-extrabold text-gray-900">
-            Create Testimonial
+            Edit Testimonial
           </h1>
           <p className="text-gray-500 mt-1">
-            Add a student testimonial to your website.
+            Update the testimonial details below.
           </p>
         </div>
 
@@ -265,7 +313,7 @@ export default function Page() {
               className="bg-[#1C8BCA] text-white px-8 py-3 rounded-lg flex items-center gap-2 font-semibold hover:bg-sky-700 transition disabled:opacity-60 disabled:cursor-not-allowed"
             >
               {loading && <Loader2 className="animate-spin" size={18} />}
-              {loading ? "Creating..." : "Create Testimonial"}
+              {loading ? "Updating..." : "Update Testimonial"}
             </button>
           </div>
         </form>

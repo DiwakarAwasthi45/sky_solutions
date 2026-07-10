@@ -18,8 +18,7 @@ const CourseSchema = new mongoose.Schema(
 
     image: {
       type: String,
-      required: [true, "Image is required"],
-      trim: true,
+      required: [true, "Course image is required"],
     },
 
     description: {
@@ -29,9 +28,9 @@ const CourseSchema = new mongoose.Schema(
     },
 
     duration: {
-      type: String,
+      type: Number,
       required: [true, "Duration is required"],
-      trim: true,
+      min: 1,
     },
 
     level: {
@@ -41,16 +40,16 @@ const CourseSchema = new mongoose.Schema(
     },
 
     price: {
-      type: String,
+      type: Number,
       required: [true, "Price is required"],
-      trim: true,
+      min: 0,
     },
 
     syllabus: [
       {
         module: {
           type: String,
-          required: true,
+          required: [true, "Module name is required"],
           trim: true,
         },
 
@@ -58,13 +57,19 @@ const CourseSchema = new mongoose.Schema(
           {
             title: {
               type: String,
-              required: true,
+              required: [true, "Topic title is required"],
               trim: true,
             },
           },
         ],
       },
     ],
+
+    status: {
+      type: String,
+      enum: ["Active", "Inactive"],
+      default: "Active",
+    },
   },
   {
     timestamps: true,

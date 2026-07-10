@@ -24,7 +24,7 @@ export default function AdminLayout({ children }) {
     <div
       className={`${geistSans.variable} ${geistMono.variable} min-h-screen flex gap-3  antialiased`}
     >
-     <Sidebar/>
+     <Sidebar />
       <main className="flex-1">{children}</main>
     
     </div>

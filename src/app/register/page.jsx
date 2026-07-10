@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import axios from "axios";
 import { toast } from "react-toastify";
-import { User, Mail, Phone, Lock, Eye, EyeOff, ArrowRight } from "lucide-react";
+import { User, Mail, Phone, Lock, Eye, EyeOff, ArrowRight, UserCog } from "lucide-react";
 
 export default function page() {
   const router = useRouter();
@@ -25,6 +25,7 @@ export default function page() {
       name: "",
       email: "",
       phone: "",
+      role: "student",
       password: "",
       confirmPassword: "",
     },
@@ -41,6 +42,7 @@ export default function page() {
         name: formData.name.trim(),
         email: formData.email.trim().toLowerCase(),
         phone: formData.phone.trim(),
+        role: formData.role,
         password: formData.password,
       });
 
@@ -141,6 +143,30 @@ export default function page() {
               />
             </div>
             {errors.phone && <p className="mt-1 text-sm text-red-500">{errors.phone.message}</p>}
+          </div>
+
+          {/* Role */}
+          <div>
+            <label htmlFor="role" className="mb-1.5 block text-sm font-semibold text-gray-700">
+              Role
+            </label>
+            <div className="relative">
+              <UserCog className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+              <select
+                id="role"
+                className={`w-full appearance-none rounded-xl border bg-white py-3 pl-11 pr-4 outline-none transition focus:border-[#1877AE] focus:ring-1 focus:ring-[#1877AE] ${
+                  errors.role ? "border-red-400" : "border-gray-200"
+                }`}
+                {...register("role", {
+                  required: "Please select a role",
+                })}
+              >
+                <option value="student">Student</option>
+                <option value="instructor">Instructor</option>
+                <option value="admin">Admin</option>
+              </select>
+            </div>
+            {errors.role && <p className="mt-1 text-sm text-red-500">{errors.role.message}</p>}
           </div>
 
           {/* Password */}
