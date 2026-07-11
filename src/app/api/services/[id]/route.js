@@ -7,24 +7,26 @@ import path from "path";
 
 export const runtime = "nodejs";
 
-// GET SINGLE SERVICE
+// ======================
+// GET SINGLE SERVICE (by slug)
+// ======================
 export async function GET(request, { params }) {
   try {
     await dbConnect();
 
-    const { id } = await params;
+    const { id } = await params; // this is actually the slug coming from the URL
 
-    if (!mongoose.Types.ObjectId.isValid(id)) {
+    if (!id) {
       return NextResponse.json(
         {
           success: false,
-          message: "Invalid service id",
+          message: "Slug is required",
         },
         { status: 400 }
       );
     }
 
-    const service = await Service.findById(id);
+    const service = await Service.findOne({ slug: id });
 
     if (!service) {
       return NextResponse.json(
@@ -54,7 +56,9 @@ export async function GET(request, { params }) {
   }
 }
 
-// UPDATE SERVICE
+// ======================
+// UPDATE SERVICE (by Mongo _id)
+// ======================
 export async function PUT(request, { params }) {
   try {
     await dbConnect();
@@ -174,7 +178,9 @@ export async function PUT(request, { params }) {
   }
 }
 
-// DELETE SERVICE
+// ======================
+// DELETE SERVICE (by Mongo _id)
+// ======================
 export async function DELETE(request, { params }) {
   try {
     await dbConnect();

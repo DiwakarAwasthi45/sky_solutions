@@ -71,11 +71,11 @@ export default function Page() {
       formData.append("status", data.status);
       formData.append("image", data.image[0]);
 
-      const res = await axios.post("/api/galleries", formData);
+      const res = await axios.post("/api/gallery", formData);
 
       if (res.data.success) {
         toast.success("Gallery created successfully");
-        router.push("/admin/galleries");
+        router.push("/admin/gallery");
       } else {
         toast.error(res.data.message || "Failed to create gallery");
       }
@@ -185,7 +185,7 @@ export default function Page() {
           <div className="flex justify-end gap-3">
             <button
               type="button"
-              onClick={() => router.push("/admin/galleries")}
+              onClick={() => router.push("/admin/gallery")}
               className="px-6 py-3 rounded-lg font-semibold text-gray-600 hover:bg-gray-100 transition"
             >
               Cancel

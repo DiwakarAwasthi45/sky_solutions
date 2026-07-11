@@ -1,28 +1,36 @@
 "use client";
 
-import { useEffect,useState } from "react";
-import { useRouter,useParams } from "next/navigation";
-import { useForm } from "react-hook-form";
+import { useEffect, useState } from "react";
+import { useRouter, useParams } from "next/navigation";
 import axios from "axios";
 import { toast } from "react-toastify";
-import {
-  BookOpen,
-  Calendar,
-  Clock,
-  CheckCircle2,
-  Loader2,
-} from "lucide-react"
+import { useForm } from "react-hook-form";
+import { Loader2, UploadCloud, Info, Settings2, ImagePlus } from "lucide-react";
 
-export default function page(){
+const inputBase =
+  "w-full border rounded-lg p-3 outline-none transition focus:ring-2 focus:ring-[#1C8BCA]/30 focus:border-[#1C8BCA]";
 
-const router=useRouter();
-const {id}=useParams();
+function SectionHeader({ icon: Icon, title }) {
+  return (
+    <div className="flex items-center gap-2.5 mb-6">
+      <div className="w-8 h-8 rounded-lg bg-sky-50 flex items-center justify-center text-[#1C8BCA]">
+        <Icon size={17} />
+      </div>
+      <h2 className="text-lg font-bold text-gray-900">{title}</h2>
+    </div>
+  );
+}
 
-const [loading,setLoading]=useState(false);
-const [fetching,setFetching]=useState(true);
+export default function Page() {
+  const router = useRouter();
+  const params = useParams();
+  const id = params.id;
 
+  const [loading, setLoading] = useState(false);
+  const [fetchLoading, setFetchLoading] = useState(true);
+  const [imagePreview, setImagePreview] = useState(null);
 
- const {
+  const {
     register,
     handleSubmit,
     reset,
@@ -34,116 +42,109 @@ const [fetching,setFetching]=useState(true);
     },
   });
 
+  const { onChange: onImageChange, ...imageRegister } = register("image");
 
-// Fetch Single upcoming
+  useEffect(() => {
+    if (id) fetchUpcoming();
+  }, [id]);
 
-const getUpcoming=async()=>{
+  useEffect(() => {
+    return () => {
+      if (imagePreview?.startsWith("blob:")) {
+        URL.revokeObjectURL(imagePreview);
+      }
+    };
+  }, [imagePreview]);
 
-try{
+  const fetchUpcoming = async () => {
+    try {
+      const res = await axios.get(`/api/upcoming/${id}`);
+      const upcoming = res.data.data;
 
-const res=await axios.get(
-`/api/upcoming/${id}`
-);
+      reset({
+        name: upcoming.name || "",
+        status: upcoming.status || "Open",
+        isActive: upcoming.isActive ?? true,
+      });
 
-const upcoming=res.data.upcoming;
+      setValue("status", upcoming.status ? "true" : "false");
+      setValue("rating", String(upcoming.rating ?? 5));
 
-reset({
-title:upcoming.title,
-date:upcoming.date,
-time:upcoming.time,
-status:upcoming.status,
-isActive:upcoming.isActive
-});
+      if (upcoming.image) {
+        setImagePreview(upcoming.image);
+      } else {
+        setImagePreview(null);
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to load upcoming event");
+    } finally {
+      setFetchLoading(false);
+    }
+  };
 
+  const handleImagePick = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
 
+    if (imagePreview?.startsWith("blob:")) {
+      URL.revokeObjectURL(imagePreview);
+    }
 
-}catch(error){
+    setImagePreview(URL.createObjectURL(file));
+  };
 
-toast.error("Failed to load upcoming class");
+  const onSubmit = async (data) => {
+    try {
+      setLoading(true);
 
-}finally{
+      const formData = new FormData();
+      formData.append("name", data.name);
+      formData.append("course", data.course);
+      formData.append("message", data.message);
+      formData.append("rating", data.rating);
+      formData.append("status", data.status);
 
-setFetching(false);
+      if (data.image?.[0]) {
+        formData.append("image", data.image[0]);
+      }
 
-}
+      const res = await axios.put(`/api/upcoming/${id}`, formData);
 
-};
+      if (res.data.success) {
+        toast.success("Upcoming event updated successfully");
+        router.push("/admin/upcoming");
+      } else {
+        toast.error(res.data.message || "Failed to update upcoming event");
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error(error.response?.data?.message || "Something went wrong");
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  if (fetchLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <Loader2 className="animate-spin text-[#1C8BCA]" size={40} />
+      </div>
+    );
+  }
 
-useEffect(()=>{
-
-if(id) getUpcoming();
-
-},[id]);
-
-
-
-// Update Upcoming Class    
-
-const onSubmit=async(data)=>{
-
-try{
-
-setLoading(true);
-
-const res=await axios.put(
-`/api/upcoming/${id}`,
-data
-);
-
-
-if(res.data.success){
-
-toast.success(
-"Upcoming class updated successfully"
-);
-
-router.push(
-"/admin/upcoming"
-);
-
-}
-
-
-}catch(error){
-
-toast.error(
-error.response?.data?.message ||
-"Update failed"
-);
-
-}finally{
-
-setLoading(false);
-
-}
-
-};
-
-
-
-if(fetching){
-
-return(
-<div className="p-6">
-Loading...
-</div>
-);
-
-}
-
-
-
-return(
-
-<div className="p-6">
-
-<h1 className="text-3xl font-bold mb-6">
-Edit Upcoming Class
-</h1>
-
-
- <form
+  return (
+    <div className="min-h-screen bg-gray-50 py-10">
+      <div className="max-w-5xl mx-auto px-5">
+        <div className="mb-8">
+          <h1 className="text-3xl font-extrabold text-gray-900">
+            Edit Upcoming Event
+          </h1>
+          <p className="text-gray-500 mt-1">
+            Update the upcoming event details below.
+          </p>
+        </div>
+  <form
           onSubmit={handleSubmit(onSubmit)}
           className="p-6 space-y-6"
         >
@@ -293,16 +294,15 @@ Edit Upcoming Class
                   className="animate-spin"
                   size={18}
                 />
-                Creating...
+                Updating...
               </>
             ) : (
-              "Create Upcoming Class"
+              "Update Upcoming Event"
             )}
           </button>
         </form>
-
-</div>
-
-);
-
+       
+      </div>
+    </div>
+  );
 }

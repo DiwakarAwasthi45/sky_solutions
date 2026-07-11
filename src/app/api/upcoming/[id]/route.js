@@ -3,33 +3,36 @@ import mongoose from "mongoose";
 import dbConnect from "@/lib/db";
 import Upcoming from "@/models/Upcoming";
 
+// ---- Helpers ----
+function errorResponse(message, status) {
+  return NextResponse.json({ success: false, message }, { status });
+}
+
+function isValidId(id) {
+  return mongoose.Types.ObjectId.isValid(id);
+}
+
+function getErrorMessage(error) {
+  return process.env.NODE_ENV === "development"
+    ? error.message
+    : "Something went wrong";
+}
+
 // GET Single Upcoming Event
 export async function GET(request, { params }) {
   try {
     await dbConnect();
 
-    const { id } = params;
+    const { id } = await params;
 
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-      return NextResponse.json(
-        {
-          success: false,
-          message: "Invalid Upcoming Event ID",
-        },
-        { status: 400 }
-      );
+    if (!isValidId(id)) {
+      return errorResponse("Invalid Upcoming Event ID", 400);
     }
 
     const upcomingEvent = await Upcoming.findById(id);
 
     if (!upcomingEvent) {
-      return NextResponse.json(
-        {
-          success: false,
-          message: "Upcoming event not found",
-        },
-        { status: 404 }
-      );
+      return errorResponse("Upcoming event not found", 404);
     }
 
     return NextResponse.json({
@@ -37,13 +40,7 @@ export async function GET(request, { params }) {
       data: upcomingEvent,
     });
   } catch (error) {
-    return NextResponse.json(
-      {
-        success: false,
-        message: error.message,
-      },
-      { status: 500 }
-    );
+    return errorResponse(getErrorMessage(error), 500);
   }
 }
 
@@ -52,18 +49,16 @@ export async function PUT(request, { params }) {
   try {
     await dbConnect();
 
-    const { id } = params;
+    const { id } = await params;
     const body = await request.json();
 
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-      return NextResponse.json(
-        {
-          success: false,
-          message: "Invalid Upcoming Event ID",
-        },
-        { status: 400 }
-      );
+    if (!isValidId(id)) {
+      return errorResponse("Invalid Upcoming Event ID", 400);
     }
+
+    // Prevent overwriting immutable fields
+    delete body._id;
+    delete body.__v;
 
     const upcomingEvent = await Upcoming.findByIdAndUpdate(id, body, {
       new: true,
@@ -71,13 +66,7 @@ export async function PUT(request, { params }) {
     });
 
     if (!upcomingEvent) {
-      return NextResponse.json(
-        {
-          success: false,
-          message: "Upcoming event not found",
-        },
-        { status: 404 }
-      );
+      return errorResponse("Upcoming event not found", 404);
     }
 
     return NextResponse.json({
@@ -86,13 +75,7 @@ export async function PUT(request, { params }) {
       data: upcomingEvent,
     });
   } catch (error) {
-    return NextResponse.json(
-      {
-        success: false,
-        message: error.message,
-      },
-      { status: 500 }
-    );
+    return errorResponse(getErrorMessage(error), 500);
   }
 }
 
@@ -101,41 +84,23 @@ export async function DELETE(request, { params }) {
   try {
     await dbConnect();
 
-    const { id } = params;
+    const { id } = await params;
 
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-      return NextResponse.json(
-        {
-          success: false,
-          message: "Invalid Upcoming Event ID",
-        },
-        { status: 400 }
-      );
+    if (!isValidId(id)) {
+      return errorResponse("Invalid Upcoming Event ID", 400);
     }
 
     const upcomingEvent = await Upcoming.findByIdAndDelete(id);
 
-    if (!course) {
-      return NextResponse.json(
-        {
-          success: false,
-          message: "Course not found",
-        },
-        { status: 404 }
-      );
+    if (!upcomingEvent) {
+      return errorResponse("Upcoming event not found", 404);
     }
 
     return NextResponse.json({
       success: true,
-      message: "Course deleted successfully",
+      message: "Upcoming event deleted successfully",
     });
   } catch (error) {
-    return NextResponse.json(
-      {
-        success: false,
-        message: error.message,
-      },
-      { status: 500 }
-    );
+    return errorResponse(getErrorMessage(error), 500);
   }
 }

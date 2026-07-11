@@ -1,23 +1,36 @@
 'use client'
 
-import { useState } from 'react'
-import { Phone, Mail, MapPin, Send } from 'lucide-react'
+import { useForm } from 'react-hook-form'
+import { Phone, Mail, MapPin, Send, Loader2 } from 'lucide-react'
 
 export default function ContactSection() {
-  const [form, setForm] = useState({
-    name: '',
-    email: '',
-    message: '',
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors, isSubmitting },
+  } = useForm({
+    defaultValues: {
+      name: '',
+      email: '',
+      message: '',
+    },
   })
 
-  const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value })
-  }
+  const onSubmit = async (data) => {
+    try {
+      // Replace with your actual API call, e.g.:
+      // const res = await axios.post('/api/contact', data);
 
-  const handleSubmit = (e) => {
-    e.preventDefault()
-    console.log(form)
-    alert('Message sent successfully!')
+      console.log(data)
+      await new Promise((resolve) => setTimeout(resolve, 800)) // simulate request
+
+      alert('Message sent successfully!')
+      reset()
+    } catch (error) {
+      console.error(error)
+      alert('Something went wrong. Please try again.')
+    }
   }
 
   return (
@@ -43,44 +56,90 @@ export default function ContactSection() {
               Contact Form
             </h3>
 
-            <form onSubmit={handleSubmit} className="space-y-5">
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
 
-              <input
-                type="text"
-                name="name"
-                placeholder="Your Name"
-                value={form.name}
-                onChange={handleChange}
-                className="w-full rounded-xl border p-4 focus:outline-none focus:ring-2 focus:ring-[#1C8BCA]"
-                required
-              />
+              <div>
+                <input
+                  type="text"
+                  placeholder="Your Name"
+                  className={`w-full rounded-xl border p-4 focus:outline-none focus:ring-2 focus:ring-[#1C8BCA] ${
+                    errors.name ? "border-red-500" : ""
+                  }`}
+                  {...register("name", {
+                    required: "Name is required",
+                    minLength: {
+                      value: 2,
+                      message: "Name must be at least 2 characters",
+                    },
+                  })}
+                />
+                {errors.name && (
+                  <p className="mt-1 text-sm text-red-500">
+                    {errors.name.message}
+                  </p>
+                )}
+              </div>
 
-              <input
-                type="email"
-                name="email"
-                placeholder="Your Email"
-                value={form.email}
-                onChange={handleChange}
-                className="w-full rounded-xl border p-4 focus:outline-none focus:ring-2 focus:ring-[#1C8BCA]"
-                required
-              />
+              <div>
+                <input
+                  type="email"
+                  placeholder="Your Email"
+                  className={`w-full rounded-xl border p-4 focus:outline-none focus:ring-2 focus:ring-[#1C8BCA] ${
+                    errors.email ? "border-red-500" : ""
+                  }`}
+                  {...register("email", {
+                    required: "Email is required",
+                    pattern: {
+                      value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                      message: "Enter a valid email address",
+                    },
+                  })}
+                />
+                {errors.email && (
+                  <p className="mt-1 text-sm text-red-500">
+                    {errors.email.message}
+                  </p>
+                )}
+              </div>
 
-              <textarea
-                name="message"
-                placeholder="Your Message"
-                value={form.message}
-                onChange={handleChange}
-                rows="5"
-                className="w-full rounded-xl border p-4 focus:outline-none focus:ring-2 focus:ring-[#1C8BCA]"
-                required
-              />
+              <div>
+                <textarea
+                  placeholder="Your Message"
+                  rows="5"
+                  className={`w-full rounded-xl border p-4 focus:outline-none focus:ring-2 focus:ring-[#1C8BCA] ${
+                    errors.message ? "border-red-500" : ""
+                  }`}
+                  {...register("message", {
+                    required: "Message is required",
+                    minLength: {
+                      value: 10,
+                      message: "Message must be at least 10 characters",
+                    },
+                  })}
+                />
+                {errors.message && (
+                  <p className="mt-1 text-sm text-red-500">
+                    {errors.message.message}
+                  </p>
+                )}
+              </div>
 
               <button
                 type="submit"
-                className="w-full flex items-center justify-center gap-2 bg-[#1C8BCA] text-white py-4 rounded-xl font-semibold hover:bg-sky-700 transition"
+                disabled={isSubmitting}
+                className="w-full flex items-center justify-center gap-2 bg-[#1C8BCA] text-white py-4 rounded-xl font-semibold hover:bg-sky-700 transition disabled:opacity-60 disabled:cursor-not-allowed"
               >
-                <Send size={18} />
-                Send Message
+                {isSubmitting ? (
+                  <>
+                    <Loader2 size={18} className="animate-spin" />
+                    Sending...
+                  </>
+                ) : (
+                  <>
+                    <Send size={18} />
+                    Send Message
+                  </>
+                )}
               </button>
 
             </form>
@@ -108,15 +167,15 @@ export default function ContactSection() {
           </div>
 
           {/* RIGHT - MAP */}
-          <div className="rounded-3xl overflow-hidden shadow-lg h-150 w-210">
+          <div className="rounded-3xl overflow-hidden shadow-lg h-[600px] w-full">
 
-              <iframe
-  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3533.0500000000003!2d80.1789!3d28.9652!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x39a1b1f3b3b3b3b3%3A0xabc123456789!2sMahendranagar%2C%20Kanchanpur!5e0!3m2!1sen!2snp!4v0000000000000"
-  className="w-full h-full border-0"
-  loading="lazy"
-  referrerPolicy="strict-origin-when-cross-origin"
-  allowFullScreen
-></iframe>
+            <iframe
+              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3533.0500000000003!2d80.1789!3d28.9652!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x39a1b1f3b3b3b3b3%3A0xabc123456789!2sMahendranagar%2C%20Kanchanpur!5e0!3m2!1sen!2snp!4v0000000000000"
+              className="w-full h-full border-0"
+              loading="lazy"
+              referrerPolicy="strict-origin-when-cross-origin"
+              allowFullScreen
+            ></iframe>
 
           </div>
 

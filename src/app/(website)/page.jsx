@@ -707,7 +707,7 @@ import axios from "axios";
               <div>
                 <h3 className="font-bold text-gray-900">Address</h3>
                 <p className="text-gray-600 mt-1">
-                  Kathmandu, Nepal (Your Institute Location)
+                Bedkot Nagarpalika-3, Shamadaiji, Kanchanpur
                 </p>
               </div>
             </div>
@@ -724,7 +724,7 @@ import axios from "axios";
               <Mail className="text-[#1C8BCA]" />
               <div>
                 <h3 className="font-bold text-gray-900">Email</h3>
-                <p className="text-gray-600 mt-1">info@yourinstitute.com</p>
+                <p className="text-gray-600 mt-1">info@skysolutions.com</p>
               </div>
             </div>
 

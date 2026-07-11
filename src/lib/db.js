@@ -3,16 +3,17 @@ import mongoose from "mongoose";
 const MONGODB_URI = process.env.MONGODB_URI;
 
 if (!MONGODB_URI) {
-  throw new Error("Please define the MONGODB_URI environment variable");
+  throw new Error(
+    "Missing MONGODB_URI environment variable. Add it to .env.local"
+  );
 }
 
-let cached = global.mongoose;
+// Cache the connection across hot reloads in development so we don't
+// open a new connection on every file save / request.
+let cached = global._mongoose;
 
 if (!cached) {
-  cached = global.mongoose = {
-    conn: null,
-    promise: null,
-  };
+  cached = global._mongoose = { conn: null, promise: null };
 }
 
 async function dbConnect() {
@@ -21,10 +22,20 @@ async function dbConnect() {
   }
 
   if (!cached.promise) {
-    cached.promise = mongoose.connect(MONGODB_URI).then((mongoose) => mongoose);
+    cached.promise = mongoose
+      .connect(MONGODB_URI, {
+        bufferCommands: false,
+      })
+      .then((mongooseInstance) => mongooseInstance);
   }
 
-  cached.conn = await cached.promise;
+  try {
+    cached.conn = await cached.promise;
+  } catch (error) {
+    cached.promise = null;
+    throw error;
+  }
+
   return cached.conn;
 }
 

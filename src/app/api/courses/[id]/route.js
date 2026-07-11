@@ -9,25 +9,25 @@ import Course from "@/models/Course";
 export const runtime = "nodejs";
 
 // ======================
-// GET SINGLE COURSE
+// GET SINGLE COURSE (by slug)
 // ======================
 export async function GET(request, { params }) {
   try {
     await dbConnect();
 
-    const { id } = await params;
+    const { id } = await params; // this is actually the slug value coming from the URL
 
-    if (!mongoose.Types.ObjectId.isValid(id)) {
+    if (!id) {
       return NextResponse.json(
         {
           success: false,
-          message: "Invalid course id",
+          message: "Slug is required",
         },
         { status: 400 }
       );
     }
 
-    const course = await Course.findById(id);
+    const course = await Course.findOne({ slug: id });
 
     if (!course) {
       return NextResponse.json(
@@ -58,7 +58,7 @@ export async function GET(request, { params }) {
 }
 
 // ======================
-// UPDATE COURSE
+// UPDATE COURSE (by Mongo _id)
 // ======================
 export async function PUT(request, { params }) {
   try {
@@ -214,7 +214,7 @@ export async function PUT(request, { params }) {
 }
 
 // ======================
-// DELETE COURSE
+// DELETE COURSE (by Mongo _id)
 // ======================
 export async function DELETE(request, { params }) {
   try {

@@ -60,7 +60,7 @@ export default function Page() {
 
   const fetchGallery = async () => {
     try {
-      const res = await axios.get(`/api/galleries/${id}`);
+      const res = await axios.get(`/api/gallery/${id}`);
       const gallery = res.data.data;
 
       reset({
@@ -107,11 +107,11 @@ export default function Page() {
         formData.append("image", data.image[0]);
       }
 
-      const res = await axios.put(`/api/galleries/${id}`, formData);
+      const res = await axios.put(`/api/gallery/${id}`, formData);
 
       if (res.data.success) {
         toast.success("Gallery updated successfully");
-        router.push("/admin/galleries");
+        router.push("/admin/gallery");
       } else {
         toast.error(res.data.message || "Failed to update gallery");
       }
@@ -229,7 +229,7 @@ export default function Page() {
           <div className="flex justify-end gap-3">
             <button
               type="button"
-              onClick={() => router.push("/admin/galleries")}
+              onClick={() => router.push("/admin/gallery")}
               className="px-6 py-3 rounded-lg font-semibold text-gray-600 hover:bg-gray-100 transition"
             >
               Cancel

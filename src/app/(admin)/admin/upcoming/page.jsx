@@ -5,187 +5,220 @@ import Link from "next/link";
 import axios from "axios";
 import { toast } from "react-toastify";
 import {
-  Plus,
   Pencil,
   Trash2,
-  Calendar,
-  Clock,
-  CheckCircle,
+  Plus,
+  CalendarClock,
+  Loader2,
+  AlertTriangle,
+  Search,
 } from "lucide-react";
 
 export default function Page() {
-  const [upcoming, setUpcoming] = useState([]);
+  const [classes, setClasses] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [selectedClass, setSelectedClass] = useState(null);
+  const [deleting, setDeleting] = useState(false);
+  const [search, setSearch] = useState("");
 
-  useEffect(() => {
-    fetchUpcoming();
-  }, []);
-
-  const fetchUpcoming = async () => {
+  const fetchClasses = async () => {
     try {
       setLoading(true);
-
-      const { data } = await axios.get("/api/upcoming");
-
-      if (data.success) {
-        setUpcoming(data.data || []);
-      } else {
-        toast.error(data.message);
+      const res = await axios.get("/api/upcoming");
+      if (res.data.success) {
+        setClasses(res.data.data || []);
       }
     } catch (error) {
-      console.error(error);
       toast.error("Failed to load upcoming classes");
     } finally {
       setLoading(false);
     }
   };
 
-  const deleteUpcoming = async (id) => {
-    const confirmDelete = window.confirm(
-      "Are you sure you want to delete this class?"
-    );
+  useEffect(() => {
+    fetchClasses();
+  }, []);
 
-    if (!confirmDelete) return;
+  const deleteClass = async () => {
+    if (!selectedClass?._id) {
+      toast.error("Class id missing");
+      return;
+    }
 
     try {
-      const { data } = await axios.delete(`/api/upcoming/${id}`);
+      setDeleting(true);
+      const res = await axios.delete(
+        `/api/upcoming/${selectedClass._id}`
+      );
 
-      if (data.success) {
-        toast.success("Deleted successfully");
-        fetchUpcoming();
-      } else {
-        toast.error(data.message);
+      if (res.data.success) {
+        toast.success("Class deleted successfully", { autoClose: 2000 });
+        setClasses((prev) =>
+          prev.filter((item) => item._id !== selectedClass._id)
+        );
+        setSelectedClass(null);
       }
     } catch (error) {
-      console.error(error);
-      toast.error("Delete failed");
+      toast.error(error.response?.data?.message || "Delete failed");
+    } finally {
+      setDeleting(false);
     }
   };
 
-  return (
-    <div className="p-6">
-      {/* Header */}
-      <div className="mb-8 flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">
-            Upcoming Classes
-          </h1>
+  const filteredClasses = classes.filter((item) =>
+    (item.title || "").toLowerCase().includes(search.toLowerCase())
+  );
 
-          <p className="mt-2 text-gray-500">
-            Manage upcoming classes.
-          </p>
+  return (
+    <div className="min-h-screen bg-gray-50 p-6 md:p-10">
+      <div className="max-w-7xl mx-auto">
+        <div className="flex flex-col md:flex-row justify-between gap-5 mb-8">
+          <div>
+            <h1 className="text-4xl font-bold text-gray-900">
+              Upcoming Classes
+            </h1>
+            <p className="text-gray-500 mt-2">Manage your upcoming classes</p>
+          </div>
+
+          <Link
+            href="/admin/upcoming/create"
+            className="bg-[#0F5E8C] text-white px-5 py-3 rounded flex items-center gap-2 rounded-xl hover:bg-[#0D4E6A] transition"
+          >
+            <Plus size={16} />
+            Add Class
+          </Link>
         </div>
 
-        <Link
-          href="/admin/upcoming/create"
-          className="flex items-center gap-2 rounded-lg bg-[#0F5E8C] px-5 py-3 text-white hover:bg-[#0F5E8C]"
-        >
-          <Plus size={18} />
-          Add Class
-        </Link>
-      </div>
+        <div className="bg-white rounded-xl border border-gray-200 mb-6">
+          <div className="flex items-center gap-3 border border-gray-300 rounded-lg px-4">
+            <Search className="text-gray-400" />
+            <input
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search class..."
+              className="w-full py-3 outline-none"
+            />
+          </div>
+        </div>
 
-      {/* Table */}
-      <div className="overflow-hidden rounded-xl bg-white shadow">
-        <table className="w-full">
-          <thead className="bg-gray-100">
-            <tr>
-              <th className="px-5 py-4 text-left">Title</th>
-              <th className="px-5 py-4 text-left">Date</th>
-              <th className="px-5 py-4 text-left">Time</th>
-              <th className="px-5 py-4 text-left">Status</th>
-              <th className="px-5 py-4 text-center">
-                Active
-              </th>
-              <th className="px-5 py-4 text-center">
-                Actions
-              </th>
-            </tr>
-          </thead>
-
-          <tbody>
-            {loading ? (
-              <tr>
-                <td
-                  colSpan={6}
-                  className="py-12 text-center"
-                >
-                  Loading...
-                </td>
-              </tr>
-            ) : upcoming.length === 0 ? (
-              <tr>
-                <td
-                  colSpan={6}
-                  className="py-12 text-center"
-                >
-                  No Upcoming Classes Found
-                </td>
-              </tr>
-            ) : (
-              upcoming.map((item) => (
-                <tr
-                  key={item._id}
-                  className="border-t hover:bg-gray-50"
-                >
-                  <td className="px-5 py-4 font-medium">
-                    {item.title}
-                  </td>
-
-                  <td className="px-5 py-4">
-                    <div className="flex items-center gap-2">
-                      <Calendar size={16} />
-                      {item.date}
-                    </div>
-                  </td>
-
-                  <td className="px-5 py-4">
-                    <div className="flex items-center gap-2">
-                      <Clock size={16} />
-                      {item.time}
-                    </div>
-                  </td>
-
-                  <td className="px-5 py-4">
-                    <span className="rounded-full bg-blue-100 px-3 py-1 text-sm text-blue-700">
-                      {item.status}
-                    </span>
-                  </td>
-
-                  <td className="px-5 py-4 text-center">
-                    {item.isActive ? (
-                      <CheckCircle className="mx-auto text-green-600" />
-                    ) : (
-                      <span className="text-red-500">
-                        Inactive
-                      </span>
-                    )}
-                  </td>
-
-                  <td className="px-5 py-4">
-                    <div className="flex justify-center gap-3">
-                      <Link
-                        href={`/admin/upcoming/edit/${item._id}`}
-                        className="rounded-lg bg-yellow-100 p-2 text-yellow-700 hover:bg-yellow-200"
-                      >
-                        <Pencil size={18} />
-                      </Link>
-
-                      <button
-                        onClick={() =>
-                          deleteUpcoming(item._id)
-                        }
-                        className="rounded-lg bg-red-100 p-2 text-red-600 hover:bg-red-200"
-                      >
-                        <Trash2 size={18} />
-                      </button>
-                    </div>
-                  </td>
+        <div className="bg-white rounded-2xl shadow overflow-hidden border border-gray-200">
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead className="bg-gray-100">
+                <tr>
+                  <th className="p-5 text-left">Class</th>
+                  <th className="p-5">Date</th>
+                  <th className="p-5">Time</th>
+                  <th className="p-5">Status</th>
+                  <th className="p-5">Active</th>
+                  <th className="p-5">Action</th>
                 </tr>
-              ))
-            )}
-          </tbody>
-        </table>
+              </thead>
+
+              <tbody>
+                {loading ? (
+                  <tr>
+                    <td colSpan="6" className="text-center py-20">
+                      <Loader2
+                        className="animate-spin mx-auto text-[#1C8BCA]"
+                        size={40}
+                      />
+                      <p className="mt-3 text-gray-500">Loading...</p>
+                    </td>
+                  </tr>
+                ) : filteredClasses.length === 0 ? (
+                  <tr>
+                    <td colSpan="6" className="text-center py-20">
+                      <CalendarClock className="mx-auto text-gray-400" size={45} />
+                      <p className="text-gray-500 mt-3">No class found</p>
+                    </td>
+                  </tr>
+                ) : (
+                  filteredClasses.map((item) => (
+                    <tr
+                      key={item._id}
+                      className="border-t border-gray-200 hover:bg-gray-50 transition"
+                    >
+                      <td className="p-5">
+                        <h3 className="font-semibold text-gray-900">
+                          {item.title}
+                        </h3>
+                      </td>
+                      <td className="p-5 text-center">{item.date}</td>
+                      <td className="p-5 text-center">{item.time}</td>
+                      <td className="p-5 text-center">
+                        <span className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm">
+                          {item.status}
+                        </span>
+                      </td>
+                      <td className="p-5 text-center">
+                        <span
+                          className={`px-3 py-1 rounded-full text-sm ${
+                            item.isActive
+                              ? "bg-green-100 text-green-700"
+                              : "bg-gray-200 text-gray-600"
+                          }`}
+                        >
+                          {item.isActive ? "Active" : "Inactive"}
+                        </span>
+                      </td>
+                      <td className="p-5">
+                        <div className="flex justify-center gap-3">
+                          <Link
+                            href={`/admin/upcoming/edit/${item._id}`}
+                            className="bg-yellow-500 text-white p-3 rounded-xl hover:bg-yellow-600"
+                          >
+                            <Pencil size={18} />
+                          </Link>
+                          <button
+                            onClick={() => setSelectedClass(item)}
+                            className="bg-red-600 text-white p-3 rounded-xl hover:bg-red-700"
+                          >
+                            <Trash2 size={18} />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        {selectedClass && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-2xl p-8 w-full max-w-md">
+              <div className="flex justify-center mb-4">
+                <div className="bg-red-100 p-4 rounded-full">
+                  <AlertTriangle className="text-red-600" size={30} />
+                </div>
+              </div>
+
+              <h2 className="text-2xl font-bold text-center">Delete Class?</h2>
+              <p className="text-center text-gray-500 mt-2">
+                Are you sure you want to delete <br />
+                <b>{selectedClass.title}</b>?
+              </p>
+
+              <div className="flex gap-3 mt-7">
+                <button
+                  onClick={() => setSelectedClass(null)}
+                  className="flex-1 border py-3 rounded-xl"
+                >
+                  Cancel
+                </button>
+                <button
+                  disabled={deleting}
+                  onClick={deleteClass}
+                  className="flex-1 bg-red-600 text-white py-3 rounded-xl"
+                >
+                  {deleting ? "Deleting..." : "Delete"}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

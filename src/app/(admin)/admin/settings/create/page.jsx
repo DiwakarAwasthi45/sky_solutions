@@ -3,10 +3,10 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
-import axios from "axios";
 import { toast } from "react-toastify";
+import axios from "axios";
 
-export default function page() {
+export default function Page() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
 
@@ -21,19 +21,24 @@ export default function page() {
     try {
       setLoading(true);
 
-      // Convert comma-separated keywords into array
+      // Convert comma-separated keywords into array, drop empty entries
       data.seoKeywords = data.seoKeywords
-        ? data.seoKeywords.split(",").map((item) => item.trim())
+        ? data.seoKeywords
+            .split(",")
+            .map((item) => item.trim())
+            .filter(Boolean)
         : [];
 
       data.maintenanceMode = data.maintenanceMode || false;
 
-      const res = await axios.post("/api/settings", data);
+      const res = await axios.post("/settings", data);
 
       if (res.data.success) {
         toast.success("Settings created successfully.");
-        router.push("/admin/settings");
         reset();
+        router.push("/admin/settings");
+      } else {
+        toast.error(res.data.message || "Something went wrong.");
       }
     } catch (error) {
       toast.error(
@@ -259,7 +264,7 @@ export default function page() {
         <button
           type="submit"
           disabled={loading}
-          className="md:col-span-2 bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg"
+          className="md:col-span-2 bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg disabled:opacity-60 disabled:cursor-not-allowed"
         >
           {loading ? "Creating..." : "Create Settings"}
         </button>
