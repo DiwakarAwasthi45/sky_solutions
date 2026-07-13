@@ -23,7 +23,7 @@ export default function page() {
     defaultValues: {
       email: "",
       password: "",
-      role: "student",
+    
     },
   });
 
@@ -140,33 +140,7 @@ export default function page() {
             )}
           </div>
 
-          {/* Role */}
-          <div>
-            <div className="relative">
-              <UserCog
-                className="absolute left-3 top-3.5 text-gray-400"
-                size={20}
-              />
-
-              <select
-                {...register("role", {
-                  required: "Please select a role",
-                })}
-                className="w-full appearance-none pl-10 pr-4 py-3 border rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-[#1C8BCA]"
-              >
-                <option value="student">Student</option>
-                <option value="instructor">Instructor</option>
-                <option value="admin">Admin</option>
-              </select>
-            </div>
-
-            {errors.role && (
-              <p className="text-red-500 text-sm mt-1">
-                {errors.role.message}
-              </p>
-            )}
-          </div>
-
+         
           {/* Forgot Password */}
           <div className="flex justify-end">
             <Link

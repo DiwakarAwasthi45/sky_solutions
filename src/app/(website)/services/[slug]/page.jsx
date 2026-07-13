@@ -18,6 +18,7 @@ export default function page() {
 
   const [service, setService] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [features,setFeatutes]=useState([])
   const [notFoundFlag, setNotFoundFlag] = useState(false);
 
   useEffect(() => {

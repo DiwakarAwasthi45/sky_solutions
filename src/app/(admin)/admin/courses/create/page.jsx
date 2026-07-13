@@ -17,6 +17,7 @@ import {
   ListChecks,
 } from "lucide-react";
 
+
 const inputBase =
   "w-full border rounded-lg p-3 outline-none transition focus:ring-2 focus:ring-[#1C8BCA]/30 focus:border-[#1C8BCA]";
 
@@ -136,6 +137,7 @@ export default function page() {
   };
 
   return (
+   
     <div className="min-h-screen bg-gray-50 py-10">
       <div className="max-w-5xl mx-auto px-5">
         <div className="mb-8">
@@ -395,6 +397,7 @@ export default function page() {
         </form>
       </div>
     </div>
+    
   );
 }
 
@@ -418,6 +421,7 @@ function ModuleField({
   const moduleError = errors?.syllabus?.[moduleIndex]?.module;
 
   return (
+     
     <div className="border border-gray-200 rounded-xl p-5">
       <div className="flex justify-between items-center mb-3">
         <h3 className="font-bold text-gray-800">Module {moduleIndex + 1}</h3>
@@ -494,5 +498,6 @@ function ModuleField({
         Add Topic
       </button>
     </div>
+   
   );
 }

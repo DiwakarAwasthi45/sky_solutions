@@ -1,272 +1,165 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
-import { toast } from "react-toastify";
 import axios from "axios";
+import { toast } from "react-toastify";
+import { useRouter } from "next/navigation";
 
-export default function Page() {
+export default function SettingsCreatePage() {
   const router = useRouter();
-  const [loading, setLoading] = useState(false);
 
   const {
     register,
     handleSubmit,
+    formState: { errors, isSubmitting },
     reset,
-    formState: { errors },
-  } = useForm();
+  } = useForm({
+    defaultValues: {
+      siteName: "",
+      siteTitle: "",
+      description: "",
+      email: "",
+      phone: "",
+      alternatePhone: "",
+      address: "",
+      googleMap: "",
+      website: "",
+      facebook: "",
+      instagram: "",
+      youtube: "",
+      linkedin: "",
+      twitter: "",
+      whatsapp: "",
+      officeHours: "",
+      maintenanceMode: false,
+      footerCopyright: "",
+      heroTitle: "",
+      heroSubtitle: "",
+      seoKeywords: "",
+    },
+  });
 
   const onSubmit = async (data) => {
     try {
-      setLoading(true);
+      const formData = new FormData();
 
-      // Convert comma-separated keywords into array, drop empty entries
-      data.seoKeywords = data.seoKeywords
-        ? data.seoKeywords
-            .split(",")
-            .map((item) => item.trim())
-            .filter(Boolean)
-        : [];
+      Object.entries(data).forEach(([key, value]) => {
+        if (key === "seoKeywords") {
+          const keywords = value
+            ? value.split(",").map((item) => item.trim()).filter(Boolean)
+            : [];
+          keywords.forEach((keyword) => formData.append("seoKeywords", keyword));
+          return;
+        }
 
-      data.maintenanceMode = data.maintenanceMode || false;
+        if (key === "maintenanceMode") {
+          formData.append(key, value ? "true" : "false");
+          return;
+        }
 
-      const res = await axios.post("/settings", data);
+        formData.append(key, value ?? "");
+      });
 
-      if (res.data.success) {
-        toast.success("Settings created successfully.");
-        reset();
-        router.push("/admin/settings");
-      } else {
-        toast.error(res.data.message || "Something went wrong.");
-      }
+      await axios.post("/api/settings", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+
+      toast.success("Settings created successfully");
+      reset();
+      router.push("/admin/settings");
     } catch (error) {
-      toast.error(
-        error.response?.data?.message || "Something went wrong."
-      );
-    } finally {
-      setLoading(false);
+      toast.error(error?.response?.data?.message || "Failed to create settings");
     }
   };
 
-  return (
-    <div className="max-w-6xl mx-auto p-8 bg-white rounded-xl shadow mt-10">
-      <h1 className="text-3xl font-bold mb-8">
-        Create Website Settings
-      </h1>
+  const inputClass =
+    "w-full rounded-md border border-gray-300 p-2 outline-none focus:border-blue-500";
 
-      <form
-        onSubmit={handleSubmit(onSubmit)}
-        className="grid md:grid-cols-2 gap-6"
-      >
-        {/* Site Name */}
+  return (
+    <div className="mx-auto max-w-4xl p-6">
+      <h1 className="mb-6 text-2xl font-bold">Create Settings</h1>
+
+      <form onSubmit={handleSubmit(onSubmit)} className="grid gap-4">
         <div>
-          <label className="font-medium">Site Name *</label>
           <input
-            {...register("siteName", { required: true })}
-            className="w-full border border-gray-200 rounded-lg p-3 mt-2"
+            {...register("siteName", { required: "Site name is required" })}
+            placeholder="Site Name"
+            className={inputClass}
           />
           {errors.siteName && (
-            <p className="text-red-500 text-sm mt-1">
-              Site Name is required
-            </p>
+            <p className="mt-1 text-sm text-red-500">{errors.siteName.message}</p>
           )}
         </div>
 
-        {/* Site Title */}
+        <input {...register("siteTitle")} placeholder="Site Title" className={inputClass} />
+        <textarea {...register("description")} placeholder="Description" className={inputClass} />
+
         <div>
-          <label className="font-medium">Site Title</label>
           <input
-            {...register("siteTitle")}
-            className="w-full border border-gray-200 rounded-lg p-3 mt-2"
+            {...register("email", { required: "Email is required" })}
+            placeholder="Email"
+            className={inputClass}
           />
-        </div>
-
-        {/* Email */}
-        <div>
-          <label className="font-medium">Email *</label>
-          <input
-            type="email"
-            {...register("email", { required: true })}
-            className="w-full border border-gray-200 rounded-lg p-3 mt-2"
-          />
-        </div>
-
-        {/* Phone */}
-        <div>
-          <label className="font-medium">Phone *</label>
-          <input
-            {...register("phone", { required: true })}
-            className="w-full border border-gray-200 rounded-lg p-3 mt-2"
-          />
-        </div>
-
-        {/* Alternate Phone */}
-        <div>
-          <label className="font-medium">Alternate Phone</label>
-          <input
-            {...register("alternatePhone")}
-            className="w-full border border-gray-200 rounded-lg p-3 mt-2"
-          />
-        </div>
-
-        {/* Website */}
-        <div>
-          <label className="font-medium">Website</label>
-          <input
-            {...register("website")}
-            className="w-full border border-gray-200 rounded-lg p-3 mt-2"
-          />
-        </div>
-
-        {/* Address */}
-        <div className="md:col-span-2">
-          <label className="font-medium">Address *</label>
-          <textarea
-            rows={2}
-            {...register("address", { required: true })}
-            className="w-full border border-gray-200 rounded-lg p-3 mt-2"
-          />
-        </div>
-
-        {/* Description */}
-        <div className="md:col-span-2">
-          <label className="font-medium">Description</label>
-          <textarea
-            rows={4}
-            {...register("description")}
-            className="w-full border border-gray-200 rounded-lg p-3 mt-2"
-          />
-        </div>
-
-        {/* Logo */}
-        <div>
-          <label className="font-medium">Logo URL</label>
-          <input
-            {...register("logo")}
-            className="w-full border border-gray-200 rounded-lg p-3 mt-2"
-          />
-        </div>
-
-        {/* Favicon */}
-        <div>
-          <label className="font-medium">Favicon URL</label>
-          <input
-            {...register("favicon")}
-            className="w-full border border-gray-200 rounded-lg p-3 mt-2"
-          />
-        </div>
-
-        {/* Google Map */}
-        <div className="md:col-span-2">
-          <label className="font-medium">Google Map Embed URL</label>
-          <input
-            {...register("googleMap")}
-            className="w-full border border-gray-200 rounded-lg p-3 mt-2"
-          />
-        </div>
-
-        {/* Social Links */}
-        <div>
-          <label className="font-medium">Facebook</label>
-          <input {...register("facebook")} className="w-full border border-gray-200 rounded-lg p-3 mt-2" />
+          {errors.email && (
+            <p className="mt-1 text-sm text-red-500">{errors.email.message}</p>
+          )}
         </div>
 
         <div>
-          <label className="font-medium">Instagram</label>
-          <input {...register("instagram")} className="w-full border border-gray-200 rounded-lg p-3 mt-2" />
+          <input
+            {...register("phone", { required: "Phone is required" })}
+            placeholder="Phone"
+            className={inputClass}
+          />
+          {errors.phone && (
+            <p className="mt-1 text-sm text-red-500">{errors.phone.message}</p>
+          )}
         </div>
+
+        <input {...register("alternatePhone")} placeholder="Alternate Phone" className={inputClass} />
 
         <div>
-          <label className="font-medium">YouTube</label>
-          <input {...register("youtube")} className="w-full border border-gray-200 rounded-lg p-3 mt-2" />
-        </div>
-
-        <div>
-          <label className="font-medium">LinkedIn</label>
-          <input {...register("linkedin")} className="w-full border border-gray-200 rounded-lg p-3 mt-2" />
-        </div>
-
-        <div>
-          <label className="font-medium">Twitter</label>
-          <input {...register("twitter")} className="w-full border border-gray-200 rounded-lg p-3 mt-2" />
-        </div>
-
-        <div>
-          <label className="font-medium">WhatsApp</label>
-          <input {...register("whatsapp")} className="w-full border border-gray-200 rounded-lg p-3 mt-2" />
-        </div>
-
-        {/* Office Hours */}
-        <div className="md:col-span-2">
-          <label className="font-medium">Office Hours</label>
           <input
-            {...register("officeHours")}
-            className="w-full border border-gray-200 rounded-lg p-3 mt-2"
+            {...register("address", { required: "Address is required" })}
+            placeholder="Address"
+            className={inputClass}
           />
+          {errors.address && (
+            <p className="mt-1 text-sm text-red-500">{errors.address.message}</p>
+          )}
         </div>
 
-        {/* Hero Title */}
-        <div>
-          <label className="font-medium">Hero Title</label>
-          <input
-            {...register("heroTitle")}
-            className="w-full border border-gray-200 rounded-lg p-3 mt-2"
-          />
-        </div>
+        <input {...register("googleMap")} placeholder="Google Map" className={inputClass} />
+        <input {...register("website")} placeholder="Website" className={inputClass} />
+        <input {...register("facebook")} placeholder="Facebook" className={inputClass} />
+        <input {...register("instagram")} placeholder="Instagram" className={inputClass} />
+        <input {...register("youtube")} placeholder="YouTube" className={inputClass} />
+        <input {...register("linkedin")} placeholder="LinkedIn" className={inputClass} />
+        <input {...register("twitter")} placeholder="Twitter" className={inputClass} />
+        <input {...register("whatsapp")} placeholder="WhatsApp" className={inputClass} />
+        <input {...register("officeHours")} placeholder="Office Hours" className={inputClass} />
 
-        {/* Hero Subtitle */}
-        <div>
-          <label className="font-medium">Hero Subtitle</label>
-          <input
-            {...register("heroSubtitle")}
-            className="w-full border border-gray-200 rounded-lg p-3 mt-2"
-          />
-        </div>
+        <label className="flex items-center gap-2">
+          <input type="checkbox" {...register("maintenanceMode")} />
+          <span>Maintenance Mode</span>
+        </label>
 
-        {/* Hero Image */}
-        <div className="md:col-span-2">
-          <label className="font-medium">Hero Image URL</label>
-          <input
-            {...register("heroImage")}
-            className="w-full border border-gray-200 rounded-lg p-3 mt-2"
-          />
-        </div>
+        <input {...register("footerCopyright")} placeholder="Footer Copyright" className={inputClass} />
+        <input {...register("heroTitle")} placeholder="Hero Title" className={inputClass} />
+        <textarea {...register("heroSubtitle")} placeholder="Hero Subtitle" className={inputClass} />
 
-        {/* Footer Copyright */}
-        <div className="md:col-span-2">
-          <label className="font-medium">Footer Copyright</label>
-          <input
-            {...register("footerCopyright")}
-            className="w-full border border-gray-200 rounded-lg p-3 mt-2"
-          />
-        </div>
-
-        {/* SEO Keywords */}
-        <div className="md:col-span-2">
-          <label className="font-medium">SEO Keywords (comma separated)</label>
-          <input
-            {...register("seoKeywords")}
-            className="w-full border border-gray-200 rounded-lg p-3 mt-2"
-            placeholder="computer, institute, web development"
-          />
-        </div>
-
-        {/* Maintenance Mode */}
-        <div className="md:col-span-2 flex items-center gap-3">
-          <input
-            type="checkbox"
-            {...register("maintenanceMode")}
-          />
-          <label className="font-medium">Enable Maintenance Mode</label>
-        </div>
+        <input
+          {...register("seoKeywords")}
+          placeholder="SEO Keywords (comma separated)"
+          className={inputClass}
+        />
 
         <button
           type="submit"
-          disabled={loading}
-          className="md:col-span-2 bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg disabled:opacity-60 disabled:cursor-not-allowed"
+          disabled={isSubmitting}
+          className="rounded-md bg-sky-600 px-4 py-2 text-white "
         >
-          {loading ? "Creating..." : "Create Settings"}
+          {isSubmitting ? "Saving..." : "Create Settings"}
         </button>
       </form>
     </div>

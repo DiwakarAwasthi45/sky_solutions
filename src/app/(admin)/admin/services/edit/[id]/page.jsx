@@ -4,13 +4,16 @@ import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import axios from "axios";
 import { toast } from "react-toastify";
-import { useForm } from "react-hook-form";
+import { useForm, useFieldArray } from "react-hook-form";
 import {
   Loader2,
   UploadCloud,
   Info,
   Settings2,
   ImagePlus,
+  ListChecks,
+  Plus,
+  Trash2,
 } from "lucide-react";
 
 const inputBase =
@@ -45,6 +48,7 @@ export default function Page() {
     watch,
     reset,
     setValue,
+    control,
     formState: { errors },
   } = useForm({
     defaultValues: {
@@ -52,10 +56,16 @@ export default function Page() {
       slug: "",
       shortDescription: "",
       description: "",
+      features: [{ value: "" }],
       status: true,
       featured: false,
       image: null,
     },
+  });
+
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: "features",
   });
 
   const titleValue = watch("title");
@@ -98,11 +108,17 @@ export default function Page() {
       const res = await axios.get(`/api/services/${id}`);
       const service = res.data.data;
 
+      const featuresArray =
+        Array.isArray(service.features) && service.features.length > 0
+          ? service.features.map((f) => ({ value: f }))
+          : [{ value: "" }];
+
       reset({
         title: service.title || "",
         slug: service.slug || "",
         shortDescription: service.shortDescription || "",
         description: service.description || "",
+        features: featuresArray,
         status: service.status ?? true,
         featured: service.featured ?? false,
         image: null,
@@ -138,11 +154,16 @@ export default function Page() {
     try {
       setLoading(true);
 
+      const cleanedFeatures = data.features
+        .map((f) => f.value.trim())
+        .filter(Boolean);
+
       const formData = new FormData();
       formData.append("title", data.title);
       formData.append("slug", data.slug);
       formData.append("shortDescription", data.shortDescription);
       formData.append("description", data.description);
+      formData.append("features", JSON.stringify(cleanedFeatures));
       formData.append("status", data.status);
       formData.append("featured", data.featured);
 
@@ -281,6 +302,54 @@ export default function Page() {
                 )}
               </div>
             </div>
+          </section>
+
+          <section className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 md:p-8">
+            <SectionHeader icon={ListChecks} title="Features" />
+
+            <div className="space-y-3">
+              {fields.map((field, index) => (
+                <div key={field.id} className="flex items-start gap-2">
+                  <div className="flex-1">
+                    <input
+                      {...register(`features.${index}.value`, {
+                        required: "Feature cannot be empty",
+                      })}
+                      className={`${inputBase} ${
+                        errors.features?.[index]?.value
+                          ? "border-red-400"
+                          : "border-gray-200"
+                      }`}
+                      placeholder={`Feature ${index + 1}`}
+                    />
+                    {errors.features?.[index]?.value && (
+                      <p className="text-red-500 text-xs mt-1">
+                        {errors.features[index].value.message}
+                      </p>
+                    )}
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => remove(index)}
+                    disabled={fields.length === 1}
+                    className="mt-1 p-2.5 rounded-lg text-red-500 hover:bg-red-50 transition disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-transparent"
+                    aria-label="Remove feature"
+                  >
+                    <Trash2 size={18} />
+                  </button>
+                </div>
+              ))}
+            </div>
+
+            <button
+              type="button"
+              onClick={() => append({ value: "" })}
+              className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-[#1C8BCA] hover:text-sky-700 transition"
+            >
+              <Plus size={16} />
+              Add Feature
+            </button>
           </section>
 
           <section className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 md:p-8">

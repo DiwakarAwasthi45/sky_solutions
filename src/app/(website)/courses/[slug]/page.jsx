@@ -128,7 +128,7 @@ export default function Page({ params }) {
           <div className="mt-6 flex flex-wrap items-center gap-6 text-gray-700">
             <div className="flex items-center gap-2">
               <Clock size={18} className="text-[#1C8BCA]" />
-              <span className="font-medium">{course.duration} weeks</span>
+              <span className="font-medium">{course.duration} Months</span>
             </div>
 
             <div className="flex items-center gap-2">
@@ -157,7 +157,7 @@ export default function Page({ params }) {
               {course.syllabus.map((item, index) => (
                 <div
                   key={index}
-                  className="border rounded-2xl overflow-hidden bg-white"
+                  className="border border-gray-200 rounded-2xl overflow-hidden bg-white"
                 >
                   <button
                     onClick={() =>

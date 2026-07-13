@@ -91,6 +91,7 @@ export async function PUT(request, { params }) {
     const title = formData.get("title")?.toString().trim();
     const slug = formData.get("slug")?.toString().trim();
     const shortDescription = formData.get("shortDescription")?.toString().trim();
+    const features = formData.getAll("features").map((feature) => feature.toString().trim());
     const description = formData.get("description")?.toString().trim();
     const statusRaw = formData.get("status");
     const featuredRaw = formData.get("featured");
@@ -99,7 +100,7 @@ export async function PUT(request, { params }) {
     const status = statusRaw === "true" || statusRaw === true || statusRaw === "1";
     const featured = featuredRaw === "true" || featuredRaw === true || featuredRaw === "1";
 
-    if (!title || !slug || !shortDescription || !description) {
+    if (!title || !slug || !shortDescription || !description || !features.length) {
       return NextResponse.json(
         {
           success: false,
@@ -152,6 +153,7 @@ export async function PUT(request, { params }) {
         description,
         status,
         featured,
+        features,
       },
       {
         new: true,

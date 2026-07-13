@@ -33,8 +33,13 @@ const ServiceSchema = new mongoose.Schema(
       required: [true, "Description is required"],
       trim: true,
     },
+    features:{
+      type: [String],
+      default: [],
+      required: [true, "Features are required"],
+      trim: true,
+    },
 
-   
 
     status: {
       type: Boolean,

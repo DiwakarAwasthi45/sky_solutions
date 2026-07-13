@@ -43,6 +43,7 @@ export async function POST(request) {
     const slug = formData.get("slug")?.toString().trim();
     const shortDescription = formData.get("shortDescription")?.toString().trim();
     const description = formData.get("description")?.toString().trim();
+    const features = formData.getAll("features").map((feature) => feature.toString().trim());
     const statusRaw = formData.get("status");
     const featuredRaw = formData.get("featured");
     const image = formData.get("image");
@@ -55,6 +56,7 @@ export async function POST(request) {
       !slug ||
       !shortDescription ||
       !description ||
+      !features.length ||
       !(image instanceof File) ||
       image.size === 0
     ) {
@@ -95,6 +97,7 @@ export async function POST(request) {
       image: imageUrl,
       shortDescription,
       description,
+      features,
       status,
       featured,
     });

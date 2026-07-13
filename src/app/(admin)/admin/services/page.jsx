@@ -105,6 +105,7 @@ export default function page() {
                 <tr>
                   <th className="p-5 text-left">Image</th>
                   <th className="p-5 text-left">Service</th>
+                  <th className="p-5 text-left">Features</th>
                   <th className="p-5">Featured</th>
                   <th className="p-5">Status</th>
                   <th className="p-5">Action</th>
@@ -114,7 +115,7 @@ export default function page() {
               <tbody>
                 {loading ? (
                   <tr>
-                    <td colSpan="5" className="text-center py-20">
+                    <td colSpan="6" className="text-center py-20">
                       <Loader2
                         className="animate-spin mx-auto text-[#1C8BCA]"
                         size={40}
@@ -124,73 +125,103 @@ export default function page() {
                   </tr>
                 ) : filteredServices.length === 0 ? (
                   <tr>
-                    <td colSpan="5" className="text-center py-20">
+                    <td colSpan="6" className="text-center py-20">
                       <Wrench className="mx-auto text-gray-400" size={45} />
                       <p className="text-gray-500 mt-3">No service found</p>
                     </td>
                   </tr>
                 ) : (
-                  filteredServices.map((service) => (
-                    <tr
-                      key={service._id}
-                      className="border-t border-gray-200 hover:bg-gray-50 transition"
-                    >
-                      <td className="p-5">
-                        <img
-                          src={service.image}
-                          alt={service.title || "Service"}
-                          className="w-24 h-16 rounded-xl object-cover"
-                          loading="lazy"
-                        />
-                      </td>
-                      <td className="p-5">
-                        <h3 className="font-semibold text-gray-900">
-                          {service.title}
-                        </h3>
-                        <p className="text-sm text-gray-500">/{service.slug}</p>
-                        <p className="text-sm text-gray-500 mt-1 line-clamp-1 max-w-xs">
-                          {service.shortDescription}
-                        </p>
-                      </td>
-                      <td className="p-5 text-center">
-                        {service.featured ? (
-                          <span className="inline-flex items-center gap-1 bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-sm">
-                            <Star size={14} className="fill-yellow-500 text-yellow-500" />
-                            Featured
+                  filteredServices.map((service) => {
+                    const features = Array.isArray(service.features)
+                      ? service.features
+                      : [];
+                    const visibleFeatures = features.slice(0, 2);
+                    const remaining = features.length - visibleFeatures.length;
+
+                    return (
+                      <tr
+                        key={service._id}
+                        className="border-t border-gray-200 hover:bg-gray-50 transition"
+                      >
+                        <td className="p-5">
+                          <img
+                            src={service.image}
+                            alt={service.title || "Service"}
+                            className="w-24 h-16 rounded-xl object-cover"
+                            loading="lazy"
+                          />
+                        </td>
+                        <td className="p-5">
+                          <h3 className="font-semibold text-gray-900">
+                            {service.title}
+                          </h3>
+                          <p className="text-sm text-gray-500">/{service.slug}</p>
+                          <p className="text-sm text-gray-500 mt-1 line-clamp-1 max-w-xs">
+                            {service.shortDescription}
+                          </p>
+                        </td>
+                        <td className="p-5 max-w-[220px]">
+                          {features.length === 0 ? (
+                            <span className="text-gray-400 text-sm">—</span>
+                          ) : (
+                            <div className="flex flex-wrap gap-1.5">
+                              {visibleFeatures.map((feature, idx) => (
+                                <span
+                                  key={idx}
+                                  className="inline-block bg-sky-50 text-[#1C8BCA] text-xs font-medium px-2.5 py-1 rounded-full truncate max-w-[110px]"
+                                  title={feature}
+                                >
+                                  {feature}
+                                </span>
+                              ))}
+                              {remaining > 0 && (
+                                <span className="inline-block bg-gray-100 text-gray-600 text-xs font-medium px-2.5 py-1 rounded-full">
+                                  +{remaining} more
+                                </span>
+                              )}
+                            </div>
+                          )}
+                        </td>
+                        <td className="p-5 text-center">
+                          {service.featured ? (
+                            <span className="inline-flex items-center gap-1 bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-sm">
+                              <Star size={14} className="fill-yellow-500 text-yellow-500" />
+                              Featured
+                            </span>
+                          ) : (
+                            <span className="text-gray-400 text-sm">—</span>
+                          )}
+                        </td>
+                        <td className="p-5 text-center">
+                          <span
+                            className={`px-3 py-1 rounded-full text-sm ${
+                              service.status
+                                ? "bg-green-100 text-green-700"
+                                : "bg-gray-200 text-gray-600"
+                            }`}
+                          >
+                            {service.status ? "Active" : "Inactive"}
                           </span>
-                        ) : (
-                          <span className="text-gray-400 text-sm">—</span>
-                        )}
-                      </td>
-                      <td className="p-5 text-center">
-                        <span
-                          className={`px-3 py-1 rounded-full text-sm ${
-                            service.status
-                              ? "bg-green-100 text-green-700"
-                              : "bg-gray-200 text-gray-600"
-                          }`}
-                        >
-                          {service.status ? "Active" : "Inactive"}
-                        </span>
-                      </td>
-                      <td className="p-5">
-                        <div className="flex justify-center gap-3">
-                          <Link
-                            href={`/admin/services/edit/${service._id}`}
-                            className="bg-yellow-500 text-white p-3 rounded-xl hover:bg-yellow-600"
-                          >
-                            <Pencil size={18} />
-                          </Link>
-                          <button
-                            onClick={() => setSelectedService(service)}
-                            className="bg-red-600 text-white p-3 rounded-xl hover:bg-red-700"
-                          >
-                            <Trash2 size={18} />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))
+                        </td>
+                        <td className="p-5">
+                          <div className="flex justify-center gap-3">
+                            <Link
+                              href={`/admin/services/edit/${service._id}`}
+                              className="bg-yellow-500 text-white p-3 rounded-xl hover:bg-yellow-600"
+                            >
+                              <Pencil size={18} />
+                            </Link>
+                            <button
+                              onClick={() => setSelectedService(service)}
+                              className="bg-red-600 text-white p-3 rounded-xl hover:bg-red-700"
+                            >
+                              <Trash2 size={18} />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })
                 )}
               </tbody>
             </table>
