@@ -1,7 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname,useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import axios from "axios";
+
 import {
   LayoutDashboard,
   BookOpen,
@@ -14,85 +16,43 @@ import {
   Settings,
   LogOut,
 } from "lucide-react";
-
-
+import { toast } from "react-toastify";
 
 const menuItems = [
-  {
-    title: "Dashboard",
-    href: "/admin",
-    icon: LayoutDashboard,
-  },
-  {
-    title: "Courses",
-    href: "/admin/courses",
-    icon: BookOpen,
-  },
-  {
-  title: "Upcoming Classes",
-  href: "/admin/upcoming",
-  icon: CalendarDays,
-},
-  {
-    title: "Services",
-    href: "/admin/services",
-    icon: Briefcase,
-  },
-   
-  {
-    title: "Gallery",
-    href: "/admin/gallery",
-    icon: Image,
-  },
-  {
-    title: "Facilities",
-    href: "/admin/facilities",
-    icon: Building2,
-  },
-  {
-    title: "Testimonials",
-    href: "/admin/testimonials",
-    icon: MessageSquare,
-  },
-  {
-    title: "Users",
-    href: "/admin/users",
-    icon: Users,
-  },
-  {
-    title: "Enrollment",
-    href: "/admin/enrollments",
-    icon: CalendarDays,
-  },
-   
-  {
-    title: "Settings",
-    href: "/admin/settings",
-    icon: Settings,
-  },
+  { title: "Dashboard", href: "/admin", icon: LayoutDashboard },
+  { title: "Courses", href: "/admin/courses", icon: BookOpen },
+  { title: "Upcoming Classes", href: "/admin/upcoming", icon: CalendarDays },
+  { title: "Services", href: "/admin/services", icon: Briefcase },
+  { title: "Gallery", href: "/admin/gallery", icon: Image },
+  { title: "Facilities", href: "/admin/facilities", icon: Building2 },
+  { title: "Testimonials", href: "/admin/testimonials", icon: MessageSquare },
+  { title: "Users", href: "/admin/users", icon: Users },
+  { title: "Enrollment", href: "/admin/enrollments", icon: CalendarDays },
+  { title: "Settings", href: "/admin/settings", icon: Settings },
 ];
 
 export default function Sidebar() {
   const pathname = usePathname();
-   const router = useRouter();
-     const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user"); // if you saved user info
+  const router = useRouter();
 
-    toast.success("Logged out successfully");
-
-    router.replace("/login");
+  const handleLogout = async () => {
+    try {
+      await axios.post("/api/auth/logout"); // clears the httpOnly cookie server-side
+      toast.success("Logged out successfully");
+      router.replace("/adminlog");
+      router.refresh(); // clears cached server-rendered admin data
+    } catch (error) {
+      console.error("Logout failed:", error);
+      toast.error("Logout failed. Please try again.");
+    }
   };
-  
 
   return (
     <aside className="w-72 min-h-screen bg-slate-900 text-white flex flex-col">
       {/* Logo */}
       <div className="border-b border-slate-800 px-6 py-5">
         <h2 className="text-2xl text-sky-500">Sky Solutions</h2>
-       <p className="text-sm text-slate-400">
-          Admin Panel
-        </p>
+        <p className="text-sm text-slate-400">Admin Panel</p>
       </div>
 
       {/* Menu */}
@@ -124,18 +84,18 @@ export default function Sidebar() {
       <div className="border-t border-slate-800 p-5">
         <div className="flex items-center gap-3 mb-4">
           <div className="h-11 w-11 rounded-full bg-sky-600 flex items-center justify-center font-bold">
-            
+            A
           </div>
-
           <div>
-            <h3 className="font-semibold">xyz</h3>
-            <p className="text-sm text-slate-400">
-              Administrator
-            </p>
+            <h3 className="font-semibold">Admin</h3>
+            <p className="text-sm text-slate-400">Administrator</p>
           </div>
         </div>
 
-        <button onClick={handleLogout} className="flex w-full items-center justify-center gap-2 rounded-lg bg-[#1877AE] px-4 py-3 font-medium transition hover:bg-red-600">
+        <button
+          onClick={handleLogout}
+          className="flex w-full items-center justify-center gap-2 rounded-lg bg-[#1877AE] px-4 py-3 font-medium transition hover:bg-red-600"
+        >
           <LogOut size={18} />
           Logout
         </button>

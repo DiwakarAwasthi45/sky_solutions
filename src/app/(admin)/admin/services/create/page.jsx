@@ -251,7 +251,7 @@ export default function Page() {
 
             <div className="space-y-3">
               {fields.map((field, index) => (
-                <div key={field.id} className="flex items-start gap-2">
+                <div key={field._id} className="flex items-start gap-2">
                   <div className="flex-1">
                     <input
                       {...register(`features.${index}.value`, {

@@ -9,7 +9,6 @@ export async function POST() {
     { status: 200 }
   );
 
-  // Clear the auth cookie
   response.cookies.set({
     name: "token",
     value: "",
