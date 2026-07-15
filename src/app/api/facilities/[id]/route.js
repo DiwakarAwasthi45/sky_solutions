@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
+import mongoose from "mongoose";
+
 import dbConnect from "@/lib/db";
 import Facility from "@/models/Facility";
-import fs from "fs";
-import path from "path";
-import mongoose from "mongoose";
+import { verifyAdmin, authErrorResponse, sanitizeError, handleUpload, deleteUploadFile } from "@/lib/api-helpers";
 
 export const runtime = "nodejs";
 
@@ -12,14 +12,11 @@ export async function GET(request, { params }) {
   try {
     await dbConnect();
 
-    const { id } = await params;
+    const { id } = params;
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return NextResponse.json(
-        {
-          success: false,
-          message: "Invalid facility id",
-        },
+        { success: false, message: "Invalid facility id." },
         { status: 400 }
       );
     }
@@ -28,27 +25,15 @@ export async function GET(request, { params }) {
 
     if (!facility) {
       return NextResponse.json(
-        {
-          success: false,
-          message: "Facility not found",
-        },
+        { success: false, message: "Facility not found." },
         { status: 404 }
       );
     }
 
-    return NextResponse.json(
-      {
-        success: true,
-        data: facility,
-      },
-      { status: 200 }
-    );
+    return NextResponse.json({ success: true, data: facility }, { status: 200 });
   } catch (error) {
     return NextResponse.json(
-      {
-        success: false,
-        message: error.message,
-      },
+      { success: false, message: sanitizeError(error) },
       { status: 500 }
     );
   }
@@ -57,28 +42,28 @@ export async function GET(request, { params }) {
 // UPDATE FACILITY
 export async function PUT(request, { params }) {
   try {
+    await verifyAdmin(request);
+  } catch (err) {
+    return authErrorResponse(err);
+  }
+
+  try {
     await dbConnect();
 
-    const { id } = await params;
+    const { id } = params;
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return NextResponse.json(
-        {
-          success: false,
-          message: "Invalid facility id",
-        },
+        { success: false, message: "Invalid facility id." },
         { status: 400 }
       );
     }
 
-    const oldFacility = await Facility.findById(id);
+    const existing = await Facility.findById(id);
 
-    if (!oldFacility) {
+    if (!existing) {
       return NextResponse.json(
-        {
-          success: false,
-          message: "Facility not found",
-        },
+        { success: false, message: "Facility not found." },
         { status: 404 }
       );
     }
@@ -90,69 +75,48 @@ export async function PUT(request, { params }) {
     const statusRaw = formData.get("status");
     const image = formData.get("image");
 
-    const status =
-      statusRaw === "true" || statusRaw === true || statusRaw === "1";
+    const updates = {};
 
-    if (!title || !description) {
-      return NextResponse.json(
-        {
-          success: false,
-          message: "Title and description are required.",
-        },
-        { status: 400 }
-      );
+    if (title) {
+      if (title.length > 200) {
+        return NextResponse.json(
+          { success: false, message: "Title too long." },
+          { status: 400 }
+        );
+      }
+      updates.title = title;
     }
-
-    let imageUrl = oldFacility.image;
+    if (description !== undefined) {
+      if (description.length > 5000) {
+        return NextResponse.json(
+          { success: false, message: "Description too long." },
+          { status: 400 }
+        );
+      }
+      updates.description = description;
+    }
+    if (statusRaw !== null) {
+      updates.status = statusRaw === "true" || statusRaw === true || statusRaw === "1";
+    }
 
     if (image instanceof File && image.size > 0) {
-      const uploadDir = path.join(process.cwd(), "public", "uploads");
-      await fs.promises.mkdir(uploadDir, { recursive: true });
-
-      const fileName = `${Date.now()}-${image.name.replace(/\s+/g, "-")}`;
-      const uploadPath = path.join(uploadDir, fileName);
-
-      const bytes = await image.arrayBuffer();
-      await fs.promises.writeFile(uploadPath, Buffer.from(bytes));
-
-      imageUrl = `/uploads/${fileName}`;
-
-      if (oldFacility.image) {
-        const oldImagePath = path.join(process.cwd(), "public", oldFacility.image);
-        if (fs.existsSync(oldImagePath)) {
-          await fs.promises.unlink(oldImagePath);
-        }
-      }
+      const imageUrl = await handleUpload(image, "facilities");
+      await deleteUploadFile(existing.image);
+      updates.image = imageUrl;
     }
 
-    const updatedFacility = await Facility.findByIdAndUpdate(
-      id,
-      {
-        title,
-        description,
-        status,
-        image: imageUrl,
-      },
-      {
-        new: true,
-        runValidators: true,
-      }
-    );
+    const facility = await Facility.findByIdAndUpdate(id, updates, {
+      new: true,
+      runValidators: true,
+    });
 
     return NextResponse.json(
-      {
-        success: true,
-        message: "Facility updated successfully",
-        data: updatedFacility,
-      },
+      { success: true, message: "Facility updated successfully", data: facility },
       { status: 200 }
     );
   } catch (error) {
     return NextResponse.json(
-      {
-        success: false,
-        message: error.message,
-      },
+      { success: false, message: sanitizeError(error) },
       { status: 500 }
     );
   }
@@ -161,54 +125,43 @@ export async function PUT(request, { params }) {
 // DELETE FACILITY
 export async function DELETE(request, { params }) {
   try {
+    await verifyAdmin(request);
+  } catch (err) {
+    return authErrorResponse(err);
+  }
+
+  try {
     await dbConnect();
 
-    const { id } = await params;
+    const { id } = params;
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return NextResponse.json(
-        {
-          success: false,
-          message: "Invalid facility id",
-        },
+        { success: false, message: "Invalid facility id." },
         { status: 400 }
       );
     }
 
-    const facility = await Facility.findById(id);
+    const facility = await Facility.findByIdAndDelete(id);
 
     if (!facility) {
       return NextResponse.json(
-        {
-          success: false,
-          message: "Facility not found",
-        },
+        { success: false, message: "Facility not found." },
         { status: 404 }
       );
     }
 
     if (facility.image) {
-      const imagePath = path.join(process.cwd(), "public", facility.image);
-      if (fs.existsSync(imagePath)) {
-        await fs.promises.unlink(imagePath);
-      }
+      await deleteUploadFile(facility.image);
     }
 
-    await Facility.findByIdAndDelete(id);
-
     return NextResponse.json(
-      {
-        success: true,
-        message: "Facility deleted successfully",
-      },
+      { success: true, message: "Facility deleted successfully" },
       { status: 200 }
     );
   } catch (error) {
     return NextResponse.json(
-      {
-        success: false,
-        message: error.message,
-      },
+      { success: false, message: sanitizeError(error) },
       { status: 500 }
     );
   }

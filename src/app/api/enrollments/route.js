@@ -1,9 +1,23 @@
 import { NextResponse } from "next/server";
 import dbConnect from "@/lib/db";
 import Enrollment from "@/models/Enrollment";
+import { verifyAdmin, authErrorResponse, sanitizeError, pick } from "@/lib/api-helpers";
 
-// GET: Fetch all enrollments
-export async function GET() {
+const ENROLLMENT_FIELDS = [
+  "name", "email", "phone", "course", "courseName",
+  "message", "address", "qualification", "occupation",
+  "paymentMethod", "paymentStatus", "enrollmentStatus",
+  "amount", "transactionId",
+];
+
+// GET: Fetch all enrollments (admin only)
+export async function GET(request) {
+  try {
+    await verifyAdmin(request);
+  } catch (err) {
+    return authErrorResponse(err);
+  }
+
   try {
     await dbConnect();
 
@@ -16,11 +30,7 @@ export async function GET() {
     });
   } catch (error) {
     return NextResponse.json(
-      {
-        success: false,
-        message: "Failed to fetch enrollments",
-        error: error.message,
-      },
+      { success: false, message: sanitizeError(error) },
       { status: 500 }
     );
   }
@@ -32,24 +42,17 @@ export async function POST(request) {
     await dbConnect();
 
     const body = await request.json();
+    const sanitized = pick(body, ENROLLMENT_FIELDS);
 
-    const enrollment = await Enrollment.create(body);
+    const enrollment = await Enrollment.create(sanitized);
 
     return NextResponse.json(
-      {
-        success: true,
-        message: "Enrollment created successfully",
-        data: enrollment,
-      },
+      { success: true, message: "Enrollment created successfully", data: enrollment },
       { status: 201 }
     );
   } catch (error) {
     return NextResponse.json(
-      {
-        success: false,
-        message: "Failed to create enrollment",
-        error: error.message,
-      },
+      { success: false, message: sanitizeError(error) },
       { status: 500 }
     );
   }

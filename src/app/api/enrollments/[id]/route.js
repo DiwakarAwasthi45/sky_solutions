@@ -2,9 +2,23 @@ import { NextResponse } from "next/server";
 import mongoose from "mongoose";
 import dbConnect from "@/lib/db";
 import Enrollment from "@/models/Enrollment";
+import { verifyAdmin, authErrorResponse, sanitizeError, pick } from "@/lib/api-helpers";
+
+const ENROLLMENT_FIELDS = [
+  "name", "email", "phone", "course", "courseName",
+  "message", "address", "qualification", "occupation",
+  "paymentMethod", "paymentStatus", "enrollmentStatus",
+  "amount", "transactionId",
+];
 
 // GET Single Enrollment
 export async function GET(request, { params }) {
+  try {
+    await verifyAdmin(request);
+  } catch (err) {
+    return authErrorResponse(err);
+  }
+
   try {
     await dbConnect();
 
@@ -12,10 +26,7 @@ export async function GET(request, { params }) {
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return NextResponse.json(
-        {
-          success: false,
-          message: "Invalid Enrollment ID",
-        },
+        { success: false, message: "Invalid Enrollment ID" },
         { status: 400 }
       );
     }
@@ -24,24 +35,15 @@ export async function GET(request, { params }) {
 
     if (!enrollment) {
       return NextResponse.json(
-        {
-          success: false,
-          message: "Enrollment not found",
-        },
+        { success: false, message: "Enrollment not found" },
         { status: 404 }
       );
     }
 
-    return NextResponse.json({
-      success: true,
-      data: enrollment,
-    });
+    return NextResponse.json({ success: true, data: enrollment });
   } catch (error) {
     return NextResponse.json(
-      {
-        success: false,
-        message: error.message,
-      },
+      { success: false, message: sanitizeError(error) },
       { status: 500 }
     );
   }
@@ -50,6 +52,12 @@ export async function GET(request, { params }) {
 // UPDATE Enrollment
 export async function PUT(request, { params }) {
   try {
+    await verifyAdmin(request);
+  } catch (err) {
+    return authErrorResponse(err);
+  }
+
+  try {
     await dbConnect();
 
     const { id } = params;
@@ -57,25 +65,21 @@ export async function PUT(request, { params }) {
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return NextResponse.json(
-        {
-          success: false,
-          message: "Invalid Enrollment ID",
-        },
+        { success: false, message: "Invalid Enrollment ID" },
         { status: 400 }
       );
     }
 
-    const enrollment = await Enrollment.findByIdAndUpdate(id, body, {
+    const sanitized = pick(body, ENROLLMENT_FIELDS);
+
+    const enrollment = await Enrollment.findByIdAndUpdate(id, sanitized, {
       new: true,
       runValidators: true,
     });
 
     if (!enrollment) {
       return NextResponse.json(
-        {
-          success: false,
-          message: "Enrollment not found",
-        },
+        { success: false, message: "Enrollment not found" },
         { status: 404 }
       );
     }
@@ -87,10 +91,7 @@ export async function PUT(request, { params }) {
     });
   } catch (error) {
     return NextResponse.json(
-      {
-        success: false,
-        message: error.message,
-      },
+      { success: false, message: sanitizeError(error) },
       { status: 500 }
     );
   }
@@ -99,16 +100,19 @@ export async function PUT(request, { params }) {
 // DELETE Enrollment
 export async function DELETE(request, { params }) {
   try {
+    await verifyAdmin(request);
+  } catch (err) {
+    return authErrorResponse(err);
+  }
+
+  try {
     await dbConnect();
 
     const { id } = params;
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return NextResponse.json(
-        {
-          success: false,
-          message: "Invalid Enrollment ID",
-        },
+        { success: false, message: "Invalid Enrollment ID" },
         { status: 400 }
       );
     }
@@ -117,10 +121,7 @@ export async function DELETE(request, { params }) {
 
     if (!enrollment) {
       return NextResponse.json(
-        {
-          success: false,
-          message: "Enrollment not found",
-        },
+        { success: false, message: "Enrollment not found" },
         { status: 404 }
       );
     }
@@ -131,10 +132,7 @@ export async function DELETE(request, { params }) {
     });
   } catch (error) {
     return NextResponse.json(
-      {
-        success: false,
-        message: error.message,
-      },
+      { success: false, message: sanitizeError(error) },
       { status: 500 }
     );
   }

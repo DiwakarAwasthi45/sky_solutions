@@ -1,9 +1,7 @@
 import { NextResponse } from "next/server";
 import dbConnect from "@/lib/db";
 import Facility from "@/models/Facility";
-import fs from "fs";
-import path from "path";
-import mongoose from "mongoose";
+import { verifyAdmin, authErrorResponse, sanitizeError, handleUpload } from "@/lib/api-helpers";
 
 export const runtime = "nodejs";
 
@@ -15,19 +13,12 @@ export async function GET() {
     const facilities = await Facility.find().sort({ createdAt: -1 });
 
     return NextResponse.json(
-      {
-        success: true,
-        count: facilities.length,
-        data: facilities,
-      },
+      { success: true, count: facilities.length, data: facilities },
       { status: 200 }
     );
   } catch (error) {
     return NextResponse.json(
-      {
-        success: false,
-        message: error.message,
-      },
+      { success: false, message: sanitizeError(error) },
       { status: 500 }
     );
   }
@@ -35,6 +26,12 @@ export async function GET() {
 
 // CREATE FACILITY
 export async function POST(request) {
+  try {
+    await verifyAdmin(request);
+  } catch (err) {
+    return authErrorResponse(err);
+  }
+
   try {
     await dbConnect();
 
@@ -45,57 +42,42 @@ export async function POST(request) {
     const statusRaw = formData.get("status");
     const image = formData.get("image");
 
-    const status =
-      statusRaw === "true" || statusRaw === true || statusRaw === "1";
+    const status = statusRaw === "true" || statusRaw === true || statusRaw === "1";
 
-    if (
-      !title ||
-      !description ||
-      !(image instanceof File) ||
-      image.size === 0
-    ) {
+    if (!title || !description || !(image instanceof File) || image.size === 0) {
       return NextResponse.json(
-        {
-          success: false,
-          message: "All fields are required.",
-        },
+        { success: false, message: "All fields are required." },
         { status: 400 }
       );
     }
 
-    const uploadDir = path.join(process.cwd(), "public", "uploads");
-    await fs.promises.mkdir(uploadDir, { recursive: true });
+    if (title.length > 200) {
+      return NextResponse.json(
+        { success: false, message: "Title too long." },
+        { status: 400 }
+      );
+    }
 
-    const fileName = `${Date.now()}-${image.name.replace(/\s+/g, "-")}`;
-    const uploadPath = path.join(uploadDir, fileName);
+    if (description.length > 5000) {
+      return NextResponse.json(
+        { success: false, message: "Description too long." },
+        { status: 400 }
+      );
+    }
 
-    const bytes = await image.arrayBuffer();
-    await fs.promises.writeFile(uploadPath, Buffer.from(bytes));
-
-    const imageUrl = `/uploads/${fileName}`;
+    const imageUrl = await handleUpload(image, "facilities");
 
     const facility = await Facility.create({
-      title,
-      description,
-      image: imageUrl,
-      status,
+      title, description, image: imageUrl, status,
     });
 
     return NextResponse.json(
-      {
-        success: true,
-        message: "Facility created successfully",
-        data: facility,
-      },
+      { success: true, message: "Facility created successfully", data: facility },
       { status: 201 }
     );
   } catch (error) {
-    console.log(error);
     return NextResponse.json(
-      {
-        success: false,
-        message: error.message,
-      },
+      { success: false, message: sanitizeError(error) },
       { status: 500 }
     );
   }

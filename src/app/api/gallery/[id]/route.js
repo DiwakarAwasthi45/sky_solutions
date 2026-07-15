@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
+import mongoose from "mongoose";
+
 import dbConnect from "@/lib/db";
 import Gallery from "@/models/Gallery";
-import fs from "fs";
-import path from "path";
-import mongoose from "mongoose";
+import { verifyAdmin, authErrorResponse, sanitizeError, handleUpload, deleteUploadFile } from "@/lib/api-helpers";
 
 export const runtime = "nodejs";
 
@@ -12,14 +12,11 @@ export async function GET(request, { params }) {
   try {
     await dbConnect();
 
-    const { id } = await params;
+    const { id } = params;
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return NextResponse.json(
-        {
-          success: false,
-          message: "Invalid gallery id",
-        },
+        { success: false, message: "Invalid gallery id." },
         { status: 400 }
       );
     }
@@ -28,27 +25,15 @@ export async function GET(request, { params }) {
 
     if (!gallery) {
       return NextResponse.json(
-        {
-          success: false,
-          message: "Gallery not found",
-        },
+        { success: false, message: "Gallery item not found." },
         { status: 404 }
       );
     }
 
-    return NextResponse.json(
-      {
-        success: true,
-        data: gallery,
-      },
-      { status: 200 }
-    );
+    return NextResponse.json({ success: true, data: gallery }, { status: 200 });
   } catch (error) {
     return NextResponse.json(
-      {
-        success: false,
-        message: error.message,
-      },
+      { success: false, message: sanitizeError(error) },
       { status: 500 }
     );
   }
@@ -57,28 +42,28 @@ export async function GET(request, { params }) {
 // UPDATE GALLERY
 export async function PUT(request, { params }) {
   try {
+    await verifyAdmin(request);
+  } catch (err) {
+    return authErrorResponse(err);
+  }
+
+  try {
     await dbConnect();
 
-    const { id } = await params;
+    const { id } = params;
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return NextResponse.json(
-        {
-          success: false,
-          message: "Invalid gallery id",
-        },
+        { success: false, message: "Invalid gallery id." },
         { status: 400 }
       );
     }
 
-    const oldGallery = await Gallery.findById(id);
+    const existing = await Gallery.findById(id);
 
-    if (!oldGallery) {
+    if (!existing) {
       return NextResponse.json(
-        {
-          success: false,
-          message: "Gallery not found",
-        },
+        { success: false, message: "Gallery item not found." },
         { status: 404 }
       );
     }
@@ -89,68 +74,40 @@ export async function PUT(request, { params }) {
     const statusRaw = formData.get("status");
     const image = formData.get("image");
 
-    const status =
-      statusRaw === "true" || statusRaw === true || statusRaw === "1";
+    const updates = {};
 
-    if (!title) {
-      return NextResponse.json(
-        {
-          success: false,
-          message: "Title is required.",
-        },
-        { status: 400 }
-      );
+    if (title) {
+      if (title.length > 200) {
+        return NextResponse.json(
+          { success: false, message: "Title too long." },
+          { status: 400 }
+        );
+      }
+      updates.title = title;
     }
 
-    let imageUrl = oldGallery.image;
+    if (statusRaw !== null) {
+      updates.status = statusRaw === "true" || statusRaw === true || statusRaw === "1";
+    }
 
     if (image instanceof File && image.size > 0) {
-      const uploadDir = path.join(process.cwd(), "public", "uploads");
-      await fs.promises.mkdir(uploadDir, { recursive: true });
-
-      const fileName = `${Date.now()}-${image.name.replace(/\s+/g, "-")}`;
-      const uploadPath = path.join(uploadDir, fileName);
-
-      const bytes = await image.arrayBuffer();
-      await fs.promises.writeFile(uploadPath, Buffer.from(bytes));
-
-      imageUrl = `/uploads/${fileName}`;
-
-      if (oldGallery.image) {
-        const oldImagePath = path.join(process.cwd(), "public", oldGallery.image);
-        if (fs.existsSync(oldImagePath)) {
-          await fs.promises.unlink(oldImagePath);
-        }
-      }
+      const imageUrl = await handleUpload(image, "gallery");
+      await deleteUploadFile(existing.image);
+      updates.image = imageUrl;
     }
 
-    const updatedGallery = await Gallery.findByIdAndUpdate(
-      id,
-      {
-        title,
-        image: imageUrl,
-        status,
-      },
-      {
-        new: true,
-        runValidators: true,
-      }
-    );
+    const gallery = await Gallery.findByIdAndUpdate(id, updates, {
+      new: true,
+      runValidators: true,
+    });
 
     return NextResponse.json(
-      {
-        success: true,
-        message: "Gallery updated successfully",
-        data: updatedGallery,
-      },
+      { success: true, message: "Gallery updated successfully", data: gallery },
       { status: 200 }
     );
   } catch (error) {
     return NextResponse.json(
-      {
-        success: false,
-        message: error.message,
-      },
+      { success: false, message: sanitizeError(error) },
       { status: 500 }
     );
   }
@@ -159,54 +116,43 @@ export async function PUT(request, { params }) {
 // DELETE GALLERY
 export async function DELETE(request, { params }) {
   try {
+    await verifyAdmin(request);
+  } catch (err) {
+    return authErrorResponse(err);
+  }
+
+  try {
     await dbConnect();
 
-    const { id } = await params;
+    const { id } = params;
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return NextResponse.json(
-        {
-          success: false,
-          message: "Invalid gallery id",
-        },
+        { success: false, message: "Invalid gallery id." },
         { status: 400 }
       );
     }
 
-    const gallery = await Gallery.findById(id);
+    const gallery = await Gallery.findByIdAndDelete(id);
 
     if (!gallery) {
       return NextResponse.json(
-        {
-          success: false,
-          message: "Gallery not found",
-        },
+        { success: false, message: "Gallery item not found." },
         { status: 404 }
       );
     }
 
     if (gallery.image) {
-      const imagePath = path.join(process.cwd(), "public", gallery.image);
-      if (fs.existsSync(imagePath)) {
-        await fs.promises.unlink(imagePath);
-      }
+      await deleteUploadFile(gallery.image);
     }
 
-    await Gallery.findByIdAndDelete(id);
-
     return NextResponse.json(
-      {
-        success: true,
-        message: "Gallery deleted successfully",
-      },
+      { success: true, message: "Gallery deleted successfully" },
       { status: 200 }
     );
   } catch (error) {
     return NextResponse.json(
-      {
-        success: false,
-        message: error.message,
-      },
+      { success: false, message: sanitizeError(error) },
       { status: 500 }
     );
   }

@@ -1,8 +1,7 @@
 import { NextResponse } from "next/server";
 import dbConnect from "@/lib/db";
 import Gallery from "@/models/Gallery";
-import fs from "fs";
-import path from "path";
+import { verifyAdmin, authErrorResponse, sanitizeError, handleUpload } from "@/lib/api-helpers";
 
 export const runtime = "nodejs";
 
@@ -14,19 +13,12 @@ export async function GET() {
     const galleries = await Gallery.find().sort({ createdAt: -1 });
 
     return NextResponse.json(
-      {
-        success: true,
-        count: galleries.length,
-        data: galleries,
-      },
+      { success: true, count: galleries.length, data: galleries },
       { status: 200 }
     );
   } catch (error) {
     return NextResponse.json(
-      {
-        success: false,
-        message: error.message,
-      },
+      { success: false, message: sanitizeError(error) },
       { status: 500 }
     );
   }
@@ -34,6 +26,12 @@ export async function GET() {
 
 // CREATE GALLERY
 export async function POST(request) {
+  try {
+    await verifyAdmin(request);
+  } catch (err) {
+    return authErrorResponse(err);
+  }
+
   try {
     await dbConnect();
 
@@ -43,51 +41,33 @@ export async function POST(request) {
     const statusRaw = formData.get("status");
     const image = formData.get("image");
 
-    const status =
-      statusRaw === "true" || statusRaw === true || statusRaw === "1";
+    const status = statusRaw === "true" || statusRaw === true || statusRaw === "1";
 
     if (!title || !(image instanceof File) || image.size === 0) {
       return NextResponse.json(
-        {
-          success: false,
-          message: "All fields are required.",
-        },
+        { success: false, message: "All fields are required." },
         { status: 400 }
       );
     }
 
-    const uploadDir = path.join(process.cwd(), "public", "uploads");
-    await fs.promises.mkdir(uploadDir, { recursive: true });
+    if (title.length > 200) {
+      return NextResponse.json(
+        { success: false, message: "Title too long." },
+        { status: 400 }
+      );
+    }
 
-    const fileName = `${Date.now()}-${image.name.replace(/\s+/g, "-")}`;
-    const uploadPath = path.join(uploadDir, fileName);
+    const imageUrl = await handleUpload(image, "gallery");
 
-    const bytes = await image.arrayBuffer();
-    await fs.promises.writeFile(uploadPath, Buffer.from(bytes));
-
-    const imageUrl = `/uploads/${fileName}`;
-
-    const gallery = await Gallery.create({
-      title,
-      image: imageUrl,
-      status,
-    });
+    const gallery = await Gallery.create({ title, image: imageUrl, status });
 
     return NextResponse.json(
-      {
-        success: true,
-        message: "Gallery created successfully",
-        data: gallery,
-      },
+      { success: true, message: "Gallery created successfully", data: gallery },
       { status: 201 }
     );
   } catch (error) {
-    console.log(error);
     return NextResponse.json(
-      {
-        success: false,
-        message: error.message,
-      },
+      { success: false, message: sanitizeError(error) },
       { status: 500 }
     );
   }

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import jwt from "jsonwebtoken";
 import dbConnect from "@/lib/db";
 import User from "@/models/User";
+import { sanitizeError } from "@/lib/api-helpers";
 
 export async function GET(request) {
   try {
@@ -38,7 +39,7 @@ export async function GET(request) {
     return NextResponse.json({ success: true, data: user }, { status: 200 });
   } catch (error) {
     return NextResponse.json(
-      { success: false, message: error.message },
+      { success: false, message: sanitizeError(error) },
       { status: 500 }
     );
   }

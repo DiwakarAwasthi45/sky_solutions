@@ -2,9 +2,9 @@
 
 import { Clock, CalendarDays, ArrowRight } from 'lucide-react'
 import Link from 'next/link'
-import { upcomingClasses } from '../Data'
 import { useEffect, useState } from 'react';
 import axios from 'axios';
+import { toast } from 'react-toastify';
 
 
 

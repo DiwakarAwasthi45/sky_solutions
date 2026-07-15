@@ -3,78 +3,65 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import dbConnect from "@/lib/db";
 import User from "@/models/User";
+import { rateLimit, getRateLimitKey } from "@/lib/rate-limit";
 
 export async function POST(request) {
   try {
-    // Connect to MongoDB
+    const rlKey = getRateLimitKey(request, "login");
+    const { allowed, resetMs } = rateLimit({ key: rlKey, limit: 5, windowMs: 15 * 60 * 1000 });
+
+    if (!allowed) {
+      return NextResponse.json(
+        { success: false, message: `Too many attempts. Try again in ${Math.ceil(resetMs / 60000)} minutes.` },
+        { status: 429 }
+      );
+    }
+
     await dbConnect();
 
-    // Get request body
     const { email, password } = await request.json();
 
-    // Validation
     if (!email || !password) {
       return NextResponse.json(
-        {
-          success: false,
-          message: "Email and password are required.",
-        },
+        { success: false, message: "Email and password are required." },
         { status: 400 }
       );
     }
 
-    // Find user
     const user = await User.findOne({ email: email.toLowerCase() });
 
     if (!user) {
       return NextResponse.json(
-        {
-          success: false,
-          message: "Invalid email or password.",
-        },
+        { success: false, message: "Invalid email or password." },
         { status: 401 }
       );
     }
 
     if (!user.isActive) {
       return NextResponse.json(
-        {
-          success: false,
-          message: "This account has been deactivated.",
-        },
+        { success: false, message: "This account has been deactivated." },
         { status: 403 }
       );
     }
 
-    // Compare password
     const isMatch = await bcrypt.compare(password, user.password);
 
     if (!isMatch) {
       return NextResponse.json(
-        {
-          success: false,
-          message: "Invalid email or password.",
-        },
+        { success: false, message: "Invalid email or password." },
         { status: 401 }
       );
     }
 
-    // Update last login timestamp
     user.lastLogin = new Date();
     await user.save();
 
-    // Generate JWT token
     const token = jwt.sign(
-      {
-        id: user._id,
-        email: user.email,
-        role: user.role,
-      },
+      { id: user._id, email: user.email, role: user.role },
       process.env.JWT_SECRET,
       { expiresIn: "7d" }
     );
 
-    // Create response
     const response = NextResponse.json(
       {
         success: true,
@@ -90,26 +77,20 @@ export async function POST(request) {
       { status: 200 }
     );
 
-    // Set HttpOnly cookie
     response.cookies.set({
       name: "token",
       value: token,
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
-      maxAge: 60 * 60 * 24 * 7, // 7 days
+      maxAge: 60 * 60 * 24 * 7,
       path: "/",
     });
 
     return response;
   } catch (error) {
-    console.error("Login Error:", error);
-
     return NextResponse.json(
-      {
-        success: false,
-        message: "Internal Server Error.",
-      },
+      { success: false, message: "Something went wrong." },
       { status: 500 }
     );
   }

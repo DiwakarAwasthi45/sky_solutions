@@ -1,6 +1,15 @@
 import { NextResponse } from "next/server";
+import mongoose from "mongoose";
+
 import dbConnect from "@/lib/db";
 import Setting from "@/models/Setting";
+import { verifyAdmin, authErrorResponse, sanitizeError, pick } from "@/lib/api-helpers";
+
+const SETTING_FIELDS = [
+  "siteName", "logo", "description", "contactEmail", "contactPhone",
+  "address", "socialLinks", "seo", "favicon", "footerText",
+  "primaryColor", "secondaryColor",
+];
 
 // GET Single Setting
 export async function GET(request, { params }) {
@@ -13,24 +22,15 @@ export async function GET(request, { params }) {
 
     if (!setting) {
       return NextResponse.json(
-        {
-          success: false,
-          message: "Setting not found.",
-        },
+        { success: false, message: "Setting not found." },
         { status: 404 }
       );
     }
 
-    return NextResponse.json({
-      success: true,
-      data: setting,
-    });
+    return NextResponse.json({ success: true, data: setting });
   } catch (error) {
     return NextResponse.json(
-      {
-        success: false,
-        message: error.message,
-      },
+      { success: false, message: sanitizeError(error) },
       { status: 500 }
     );
   }
@@ -39,22 +39,34 @@ export async function GET(request, { params }) {
 // UPDATE Setting
 export async function PUT(request, { params }) {
   try {
+    await verifyAdmin(request);
+  } catch (err) {
+    return authErrorResponse(err);
+  }
+
+  try {
     await dbConnect();
 
     const { id } = await params;
-    const body = await request.json();
 
-    const setting = await Setting.findByIdAndUpdate(id, body, {
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return NextResponse.json(
+        { success: false, message: "Invalid setting id." },
+        { status: 400 }
+      );
+    }
+
+    const body = await request.json();
+    const sanitized = pick(body, SETTING_FIELDS);
+
+    const setting = await Setting.findByIdAndUpdate(id, sanitized, {
       new: true,
       runValidators: true,
     });
 
     if (!setting) {
       return NextResponse.json(
-        {
-          success: false,
-          message: "Setting not found.",
-        },
+        { success: false, message: "Setting not found." },
         { status: 404 }
       );
     }
@@ -66,10 +78,7 @@ export async function PUT(request, { params }) {
     });
   } catch (error) {
     return NextResponse.json(
-      {
-        success: false,
-        message: error.message,
-      },
+      { success: false, message: sanitizeError(error) },
       { status: 500 }
     );
   }
@@ -78,18 +87,28 @@ export async function PUT(request, { params }) {
 // DELETE Setting
 export async function DELETE(request, { params }) {
   try {
+    await verifyAdmin(request);
+  } catch (err) {
+    return authErrorResponse(err);
+  }
+
+  try {
     await dbConnect();
 
     const { id } = await params;
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return NextResponse.json(
+        { success: false, message: "Invalid setting id." },
+        { status: 400 }
+      );
+    }
 
     const setting = await Setting.findByIdAndDelete(id);
 
     if (!setting) {
       return NextResponse.json(
-        {
-          success: false,
-          message: "Setting not found.",
-        },
+        { success: false, message: "Setting not found." },
         { status: 404 }
       );
     }
@@ -100,10 +119,7 @@ export async function DELETE(request, { params }) {
     });
   } catch (error) {
     return NextResponse.json(
-      {
-        success: false,
-        message: error.message,
-      },
+      { success: false, message: sanitizeError(error) },
       { status: 500 }
     );
   }

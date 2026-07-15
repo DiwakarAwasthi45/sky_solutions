@@ -2,8 +2,7 @@ import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import dbConnect from "@/lib/db";
 import User from "@/models/User";
-import fs from "fs";
-import path from "path";
+import { verifyAdmin, authErrorResponse, sanitizeError, escapeRegex, handleUpload } from "@/lib/api-helpers";
 
 export const runtime = "nodejs";
 
@@ -11,6 +10,12 @@ const SALT_ROUNDS = 10;
 
 // GET ALL USERS
 export async function GET(request) {
+  try {
+    await verifyAdmin(request);
+  } catch (err) {
+    return authErrorResponse(err);
+  }
+
   try {
     await dbConnect();
 
@@ -24,11 +29,11 @@ export async function GET(request) {
     const filter = {};
 
     if (search) {
-      const regex = new RegExp(search, "i");
+      const regex = new RegExp(escapeRegex(search), "i");
       filter.$or = [{ name: regex }, { email: regex }];
     }
 
-    if (role) {
+    if (role && ["admin", "user", "instructor"].includes(role)) {
       filter.role = role;
     }
 
@@ -63,10 +68,7 @@ export async function GET(request) {
     );
   } catch (error) {
     return NextResponse.json(
-      {
-        success: false,
-        message: error.message,
-      },
+      { success: false, message: sanitizeError(error) },
       { status: 500 }
     );
   }
@@ -74,6 +76,12 @@ export async function GET(request) {
 
 // CREATE USER
 export async function POST(request) {
+  try {
+    await verifyAdmin(request);
+  } catch (err) {
+    return authErrorResponse(err);
+  }
+
   try {
     await dbConnect();
 
@@ -95,20 +103,35 @@ export async function POST(request) {
 
     if (!name || !email || !password) {
       return NextResponse.json(
-        {
-          success: false,
-          message: "Name, email, and password are required.",
-        },
+        { success: false, message: "Name, email, and password are required." },
         { status: 400 }
       );
     }
 
-    if (password.length < 6) {
+    if (name.length > 100) {
       return NextResponse.json(
-        {
-          success: false,
-          message: "Password must be at least 6 characters.",
-        },
+        { success: false, message: "Name must be 100 characters or less." },
+        { status: 400 }
+      );
+    }
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || email.length > 254) {
+      return NextResponse.json(
+        { success: false, message: "Invalid email format." },
+        { status: 400 }
+      );
+    }
+
+    if (password.length < 8) {
+      return NextResponse.json(
+        { success: false, message: "Password must be at least 8 characters." },
+        { status: 400 }
+      );
+    }
+
+    if (!/[a-zA-Z]/.test(password) || !/[0-9]/.test(password)) {
+      return NextResponse.json(
+        { success: false, message: "Password must contain at least one letter and one number." },
         { status: 400 }
       );
     }
@@ -116,10 +139,7 @@ export async function POST(request) {
     const existing = await User.findOne({ email });
     if (existing) {
       return NextResponse.json(
-        {
-          success: false,
-          message: "A user with this email already exists.",
-        },
+        { success: false, message: "A user with this email already exists." },
         { status: 400 }
       );
     }
@@ -127,16 +147,7 @@ export async function POST(request) {
     let imageUrl = "";
 
     if (image instanceof File && image.size > 0) {
-      const uploadDir = path.join(process.cwd(), "public", "uploads");
-      await fs.promises.mkdir(uploadDir, { recursive: true });
-
-      const fileName = `${Date.now()}-${image.name.replace(/\s+/g, "-")}`;
-      const uploadPath = path.join(uploadDir, fileName);
-
-      const bytes = await image.arrayBuffer();
-      await fs.promises.writeFile(uploadPath, Buffer.from(bytes));
-
-      imageUrl = `/uploads/${fileName}`;
+      imageUrl = await handleUpload(image, "users");
     }
 
     const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
@@ -155,31 +166,19 @@ export async function POST(request) {
     delete userObj.password;
 
     return NextResponse.json(
-      {
-        success: true,
-        message: "User created successfully",
-        data: userObj,
-      },
+      { success: true, message: "User created successfully", data: userObj },
       { status: 201 }
     );
   } catch (error) {
-    console.log(error);
-
     if (error.code === 11000) {
       return NextResponse.json(
-        {
-          success: false,
-          message: "Email already in use.",
-        },
+        { success: false, message: "Email already in use." },
         { status: 400 }
       );
     }
 
     return NextResponse.json(
-      {
-        success: false,
-        message: error.message,
-      },
+      { success: false, message: sanitizeError(error) },
       { status: 500 }
     );
   }

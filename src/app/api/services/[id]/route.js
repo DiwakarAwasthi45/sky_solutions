@@ -1,27 +1,24 @@
 import { NextResponse } from "next/server";
 import mongoose from "mongoose";
-import dbConnect from "@/lib/db";
-import Service from "@/models/Service";
 import fs from "fs";
 import path from "path";
 
+import dbConnect from "@/lib/db";
+import Service from "@/models/Service";
+import { verifyAdmin, authErrorResponse, sanitizeError, handleUpload, deleteUploadFile } from "@/lib/api-helpers";
+
 export const runtime = "nodejs";
 
-// ======================
 // GET SINGLE SERVICE (by slug)
-// ======================
 export async function GET(request, { params }) {
   try {
     await dbConnect();
 
-    const { id } = await params; // this is actually the slug coming from the URL
+    const { id } = await params;
 
     if (!id) {
       return NextResponse.json(
-        {
-          success: false,
-          message: "Slug is required",
-        },
+        { success: false, message: "Slug is required" },
         { status: 400 }
       );
     }
@@ -30,36 +27,28 @@ export async function GET(request, { params }) {
 
     if (!service) {
       return NextResponse.json(
-        {
-          success: false,
-          message: "Service not found",
-        },
+        { success: false, message: "Service not found" },
         { status: 404 }
       );
     }
 
-    return NextResponse.json(
-      {
-        success: true,
-        data: service,
-      },
-      { status: 200 }
-    );
+    return NextResponse.json({ success: true, data: service }, { status: 200 });
   } catch (error) {
     return NextResponse.json(
-      {
-        success: false,
-        message: error.message,
-      },
+      { success: false, message: sanitizeError(error) },
       { status: 500 }
     );
   }
 }
 
-// ======================
-// UPDATE SERVICE (by Mongo _id)
-// ======================
+// UPDATE SERVICE
 export async function PUT(request, { params }) {
+  try {
+    await verifyAdmin(request);
+  } catch (err) {
+    return authErrorResponse(err);
+  }
+
   try {
     await dbConnect();
 
@@ -67,21 +56,16 @@ export async function PUT(request, { params }) {
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return NextResponse.json(
-        {
-          success: false,
-          message: "Invalid service id",
-        },
+        { success: false, message: "Invalid service id" },
         { status: 400 }
       );
     }
 
     const oldService = await Service.findById(id);
+
     if (!oldService) {
       return NextResponse.json(
-        {
-          success: false,
-          message: "Service not found",
-        },
+        { success: false, message: "Service not found" },
         { status: 404 }
       );
     }
@@ -91,8 +75,8 @@ export async function PUT(request, { params }) {
     const title = formData.get("title")?.toString().trim();
     const slug = formData.get("slug")?.toString().trim();
     const shortDescription = formData.get("shortDescription")?.toString().trim();
-    const features = formData.getAll("features").map((feature) => feature.toString().trim());
     const description = formData.get("description")?.toString().trim();
+    const features = formData.getAll("features").map((f) => f.toString().trim());
     const statusRaw = formData.get("status");
     const featuredRaw = formData.get("featured");
     const image = formData.get("image");
@@ -102,10 +86,21 @@ export async function PUT(request, { params }) {
 
     if (!title || !slug || !shortDescription || !description || !features.length) {
       return NextResponse.json(
-        {
-          success: false,
-          message: "All required fields must be filled.",
-        },
+        { success: false, message: "All required fields are missing." },
+        { status: 400 }
+      );
+    }
+
+    if (title.length > 200 || slug.length > 100) {
+      return NextResponse.json(
+        { success: false, message: "Title or slug too long." },
+        { status: 400 }
+      );
+    }
+
+    if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug)) {
+      return NextResponse.json(
+        { success: false, message: "Slug must be lowercase alphanumeric with hyphens." },
         { status: 400 }
       );
     }
@@ -113,10 +108,7 @@ export async function PUT(request, { params }) {
     const duplicate = await Service.findOne({ slug, _id: { $ne: id } });
     if (duplicate) {
       return NextResponse.json(
-        {
-          success: false,
-          message: "Slug already exists.",
-        },
+        { success: false, message: "Slug already exists." },
         { status: 400 }
       );
     }
@@ -124,66 +116,38 @@ export async function PUT(request, { params }) {
     let imageUrl = oldService.image;
 
     if (image instanceof File && image.size > 0) {
-      const uploadDir = path.join(process.cwd(), "public", "uploads");
-      await fs.promises.mkdir(uploadDir, { recursive: true });
-
-      const fileName = `${Date.now()}-${image.name.replace(/\s+/g, "-")}`;
-      const uploadPath = path.join(uploadDir, fileName);
-
-      const bytes = await image.arrayBuffer();
-      await fs.promises.writeFile(uploadPath, Buffer.from(bytes));
-
-      imageUrl = `/uploads/${fileName}`;
-
+      imageUrl = await handleUpload(image, "services");
       if (oldService.image) {
-        const oldImagePath = path.join(process.cwd(), "public", oldService.image);
-        if (fs.existsSync(oldImagePath)) {
-          await fs.promises.unlink(oldImagePath);
-        }
+        await deleteUploadFile(oldService.image);
       }
     }
 
     const updatedService = await Service.findByIdAndUpdate(
       id,
-      {
-        title,
-        slug,
-        image: imageUrl,
-        shortDescription,
-        description,
-        status,
-        featured,
-        features,
-      },
-      {
-        new: true,
-        runValidators: true,
-      }
+      { title, slug, shortDescription, description, features, status, featured, image: imageUrl },
+      { new: true, runValidators: true }
     );
 
     return NextResponse.json(
-      {
-        success: true,
-        message: "Service updated successfully",
-        data: updatedService,
-      },
+      { success: true, message: "Service updated successfully", data: updatedService },
       { status: 200 }
     );
   } catch (error) {
     return NextResponse.json(
-      {
-        success: false,
-        message: error.message,
-      },
+      { success: false, message: sanitizeError(error) },
       { status: 500 }
     );
   }
 }
 
-// ======================
-// DELETE SERVICE (by Mongo _id)
-// ======================
+// DELETE SERVICE
 export async function DELETE(request, { params }) {
+  try {
+    await verifyAdmin(request);
+  } catch (err) {
+    return authErrorResponse(err);
+  }
+
   try {
     await dbConnect();
 
@@ -191,10 +155,7 @@ export async function DELETE(request, { params }) {
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return NextResponse.json(
-        {
-          success: false,
-          message: "Invalid service id",
-        },
+        { success: false, message: "Invalid service id" },
         { status: 400 }
       );
     }
@@ -203,36 +164,24 @@ export async function DELETE(request, { params }) {
 
     if (!service) {
       return NextResponse.json(
-        {
-          success: false,
-          message: "Service not found",
-        },
+        { success: false, message: "Service not found" },
         { status: 404 }
       );
     }
 
     if (service.image) {
-      const imagePath = path.join(process.cwd(), "public", service.image);
-      if (fs.existsSync(imagePath)) {
-        await fs.promises.unlink(imagePath);
-      }
+      await deleteUploadFile(service.image);
     }
 
     await Service.findByIdAndDelete(id);
 
     return NextResponse.json(
-      {
-        success: true,
-        message: "Service deleted successfully",
-      },
+      { success: true, message: "Service deleted successfully" },
       { status: 200 }
     );
   } catch (error) {
     return NextResponse.json(
-      {
-        success: false,
-        message: error.message,
-      },
+      { success: false, message: sanitizeError(error) },
       { status: 500 }
     );
   }

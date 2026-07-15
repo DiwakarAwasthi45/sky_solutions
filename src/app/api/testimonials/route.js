@@ -1,8 +1,7 @@
 import { NextResponse } from "next/server";
 import dbConnect from "@/lib/db";
 import Testimonial from "@/models/Testimonial";
-import fs from "fs";
-import path from "path";
+import { verifyAdmin, authErrorResponse, sanitizeError, handleUpload } from "@/lib/api-helpers";
 
 export const runtime = "nodejs";
 
@@ -14,19 +13,12 @@ export async function GET() {
     const testimonials = await Testimonial.find().sort({ createdAt: -1 });
 
     return NextResponse.json(
-      {
-        success: true,
-        count: testimonials.length,
-        data: testimonials,
-      },
+      { success: true, count: testimonials.length, data: testimonials },
       { status: 200 }
     );
   } catch (error) {
     return NextResponse.json(
-      {
-        success: false,
-        message: error.message,
-      },
+      { success: false, message: sanitizeError(error) },
       { status: 500 }
     );
   }
@@ -34,6 +26,12 @@ export async function GET() {
 
 // CREATE TESTIMONIAL
 export async function POST(request) {
+  try {
+    await verifyAdmin(request);
+  } catch (err) {
+    return authErrorResponse(err);
+  }
+
   try {
     await dbConnect();
 
@@ -47,71 +45,49 @@ export async function POST(request) {
     const image = formData.get("image");
 
     const rating = Number(ratingRaw);
-    const status =
-      statusRaw === "true" || statusRaw === true || statusRaw === "1";
+    const status = statusRaw === "true" || statusRaw === true || statusRaw === "1";
 
-    if (
-      !name ||
-      !course ||
-      !message ||
-      !ratingRaw ||
-      !(image instanceof File) ||
-      image.size === 0
-    ) {
+    if (!name || !course || !message || !ratingRaw || !(image instanceof File) || image.size === 0) {
       return NextResponse.json(
-        {
-          success: false,
-          message: "All fields are required.",
-        },
+        { success: false, message: "All fields are required." },
+        { status: 400 }
+      );
+    }
+
+    if (name.length > 100 || course.length > 200) {
+      return NextResponse.json(
+        { success: false, message: "Name or course too long." },
+        { status: 400 }
+      );
+    }
+
+    if (message.length > 5000) {
+      return NextResponse.json(
+        { success: false, message: "Message too long." },
         { status: 400 }
       );
     }
 
     if (Number.isNaN(rating) || rating < 1 || rating > 5) {
       return NextResponse.json(
-        {
-          success: false,
-          message: "Rating must be between 1 and 5.",
-        },
+        { success: false, message: "Rating must be between 1 and 5." },
         { status: 400 }
       );
     }
 
-    const uploadDir = path.join(process.cwd(), "public", "uploads");
-    await fs.promises.mkdir(uploadDir, { recursive: true });
-
-    const fileName = `${Date.now()}-${image.name.replace(/\s+/g, "-")}`;
-    const uploadPath = path.join(uploadDir, fileName);
-
-    const bytes = await image.arrayBuffer();
-    await fs.promises.writeFile(uploadPath, Buffer.from(bytes));
-
-    const imageUrl = `/uploads/${fileName}`;
+    const imageUrl = await handleUpload(image, "testimonials");
 
     const testimonial = await Testimonial.create({
-      name,
-      course,
-      message,
-      image: imageUrl,
-      rating,
-      status,
+      name, course, message, image: imageUrl, rating, status,
     });
 
     return NextResponse.json(
-      {
-        success: true,
-        message: "Testimonial created successfully",
-        data: testimonial,
-      },
+      { success: true, message: "Testimonial created successfully", data: testimonial },
       { status: 201 }
     );
   } catch (error) {
-    console.log(error);
     return NextResponse.json(
-      {
-        success: false,
-        message: error.message,
-      },
+      { success: false, message: sanitizeError(error) },
       { status: 500 }
     );
   }

@@ -3,25 +3,20 @@ import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
 import dbConnect from "@/lib/db";
 import User from "@/models/User";
-import fs from "fs";
-import path from "path";
+import { verifyAdmin, authErrorResponse, sanitizeError, handleUpload, deleteUploadFile } from "@/lib/api-helpers";
 
 export const runtime = "nodejs";
 
 const SALT_ROUNDS = 10;
 
-async function deleteImageFile(imageUrl) {
-  if (!imageUrl) return;
-  try {
-    const filePath = path.join(process.cwd(), "public", imageUrl);
-    await fs.promises.unlink(filePath);
-  } catch {
-    // Ignore if file doesn't exist or can't be removed
-  }
-}
-
 // GET SINGLE USER
 export async function GET(request, { params }) {
+  try {
+    await verifyAdmin(request);
+  } catch (err) {
+    return authErrorResponse(err);
+  }
+
   try {
     await dbConnect();
 
@@ -46,7 +41,7 @@ export async function GET(request, { params }) {
     return NextResponse.json({ success: true, data: user }, { status: 200 });
   } catch (error) {
     return NextResponse.json(
-      { success: false, message: error.message },
+      { success: false, message: sanitizeError(error) },
       { status: 500 }
     );
   }
@@ -54,6 +49,12 @@ export async function GET(request, { params }) {
 
 // UPDATE USER
 export async function PUT(request, { params }) {
+  try {
+    await verifyAdmin(request);
+  } catch (err) {
+    return authErrorResponse(err);
+  }
+
   try {
     await dbConnect();
 
@@ -86,7 +87,15 @@ export async function PUT(request, { params }) {
 
     const updates = {};
 
-    if (name) updates.name = name;
+    if (name) {
+      if (name.length > 100) {
+        return NextResponse.json(
+          { success: false, message: "Name must be 100 characters or less." },
+          { status: 400 }
+        );
+      }
+      updates.name = name;
+    }
     if (phone !== undefined) updates.phone = phone;
     if (roleRaw && ["admin", "user", "instructor"].includes(roleRaw)) {
       updates.role = roleRaw;
@@ -97,6 +106,12 @@ export async function PUT(request, { params }) {
     }
 
     if (email && email !== existingUser.email) {
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || email.length > 254) {
+        return NextResponse.json(
+          { success: false, message: "Invalid email format." },
+          { status: 400 }
+        );
+      }
       const emailTaken = await User.findOne({ email, _id: { $ne: id } });
       if (emailTaken) {
         return NextResponse.json(
@@ -108,9 +123,15 @@ export async function PUT(request, { params }) {
     }
 
     if (password) {
-      if (password.length < 6) {
+      if (password.length < 8) {
         return NextResponse.json(
-          { success: false, message: "Password must be at least 6 characters." },
+          { success: false, message: "Password must be at least 8 characters." },
+          { status: 400 }
+        );
+      }
+      if (!/[a-zA-Z]/.test(password) || !/[0-9]/.test(password)) {
+        return NextResponse.json(
+          { success: false, message: "Password must contain at least one letter and one number." },
           { status: 400 }
         );
       }
@@ -118,17 +139,9 @@ export async function PUT(request, { params }) {
     }
 
     if (image instanceof File && image.size > 0) {
-      const uploadDir = path.join(process.cwd(), "public", "uploads");
-      await fs.promises.mkdir(uploadDir, { recursive: true });
-
-      const fileName = `${Date.now()}-${image.name.replace(/\s+/g, "-")}`;
-      const uploadPath = path.join(uploadDir, fileName);
-
-      const bytes = await image.arrayBuffer();
-      await fs.promises.writeFile(uploadPath, Buffer.from(bytes));
-
-      await deleteImageFile(existingUser.image);
-      updates.image = `/uploads/${fileName}`;
+      const imageUrl = await handleUpload(image, "users");
+      await deleteUploadFile(existingUser.image);
+      updates.image = imageUrl;
     }
 
     const user = await User.findByIdAndUpdate(id, updates, {
@@ -137,16 +150,10 @@ export async function PUT(request, { params }) {
     }).select("-password");
 
     return NextResponse.json(
-      {
-        success: true,
-        message: "User updated successfully",
-        data: user,
-      },
+      { success: true, message: "User updated successfully", data: user },
       { status: 200 }
     );
   } catch (error) {
-    console.log(error);
-
     if (error.name === "ValidationError") {
       const messages = Object.values(error.errors).map((e) => e.message);
       return NextResponse.json(
@@ -163,7 +170,7 @@ export async function PUT(request, { params }) {
     }
 
     return NextResponse.json(
-      { success: false, message: error.message },
+      { success: false, message: sanitizeError(error) },
       { status: 500 }
     );
   }
@@ -171,6 +178,12 @@ export async function PUT(request, { params }) {
 
 // DELETE USER
 export async function DELETE(request, { params }) {
+  try {
+    await verifyAdmin(request);
+  } catch (err) {
+    return authErrorResponse(err);
+  }
+
   try {
     await dbConnect();
 
@@ -192,7 +205,7 @@ export async function DELETE(request, { params }) {
       );
     }
 
-    await deleteImageFile(user.image);
+    await deleteUploadFile(user.image);
 
     return NextResponse.json(
       { success: true, message: "User deleted successfully" },
@@ -200,7 +213,7 @@ export async function DELETE(request, { params }) {
     );
   } catch (error) {
     return NextResponse.json(
-      { success: false, message: error.message },
+      { success: false, message: sanitizeError(error) },
       { status: 500 }
     );
   }

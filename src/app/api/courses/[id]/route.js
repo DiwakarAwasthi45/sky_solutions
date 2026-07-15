@@ -5,24 +5,20 @@ import path from "path";
 
 import dbConnect from "@/lib/db";
 import Course from "@/models/Course";
+import { verifyAdmin, authErrorResponse, sanitizeError, handleUpload, deleteUploadFile } from "@/lib/api-helpers";
 
 export const runtime = "nodejs";
 
-// ======================
 // GET SINGLE COURSE (by slug)
-// ======================
 export async function GET(request, { params }) {
   try {
     await dbConnect();
 
-    const { id } = await params; // this is actually the slug value coming from the URL
+    const { id } = await params;
 
     if (!id) {
       return NextResponse.json(
-        {
-          success: false,
-          message: "Slug is required",
-        },
+        { success: false, message: "Slug is required" },
         { status: 400 }
       );
     }
@@ -31,36 +27,28 @@ export async function GET(request, { params }) {
 
     if (!course) {
       return NextResponse.json(
-        {
-          success: false,
-          message: "Course not found",
-        },
+        { success: false, message: "Course not found" },
         { status: 404 }
       );
     }
 
-    return NextResponse.json(
-      {
-        success: true,
-        data: course,
-      },
-      { status: 200 }
-    );
+    return NextResponse.json({ success: true, data: course }, { status: 200 });
   } catch (error) {
     return NextResponse.json(
-      {
-        success: false,
-        message: error.message,
-      },
+      { success: false, message: sanitizeError(error) },
       { status: 500 }
     );
   }
 }
 
-// ======================
 // UPDATE COURSE (by Mongo _id)
-// ======================
 export async function PUT(request, { params }) {
+  try {
+    await verifyAdmin(request);
+  } catch (err) {
+    return authErrorResponse(err);
+  }
+
   try {
     await dbConnect();
 
@@ -68,10 +56,7 @@ export async function PUT(request, { params }) {
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return NextResponse.json(
-        {
-          success: false,
-          message: "Invalid course id",
-        },
+        { success: false, message: "Invalid course id" },
         { status: 400 }
       );
     }
@@ -80,10 +65,7 @@ export async function PUT(request, { params }) {
 
     if (!oldCourse) {
       return NextResponse.json(
-        {
-          success: false,
-          message: "Course not found",
-        },
+        { success: false, message: "Course not found" },
         { status: 404 }
       );
     }
@@ -110,44 +92,38 @@ export async function PUT(request, { params }) {
       syllabus = [];
     }
 
-    if (
-      !title ||
-      !slug ||
-      !description ||
-      !durationRaw ||
-      !level ||
-      !priceRaw
-    ) {
+    if (!title || !slug || !description || !durationRaw || !level || !priceRaw) {
       return NextResponse.json(
-        {
-          success: false,
-          message: "All required fields are missing.",
-        },
+        { success: false, message: "All required fields are missing." },
+        { status: 400 }
+      );
+    }
+
+    if (title.length > 200 || slug.length > 100) {
+      return NextResponse.json(
+        { success: false, message: "Title or slug too long." },
+        { status: 400 }
+      );
+    }
+
+    if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug)) {
+      return NextResponse.json(
+        { success: false, message: "Slug must be lowercase alphanumeric with hyphens." },
         { status: 400 }
       );
     }
 
     if (Number.isNaN(duration) || Number.isNaN(price)) {
       return NextResponse.json(
-        {
-          success: false,
-          message: "Duration and price must be valid numbers.",
-        },
+        { success: false, message: "Duration and price must be valid numbers." },
         { status: 400 }
       );
     }
 
-    const duplicateCourse = await Course.findOne({
-      slug,
-      _id: { $ne: id },
-    });
-
+    const duplicateCourse = await Course.findOne({ slug, _id: { $ne: id } });
     if (duplicateCourse) {
       return NextResponse.json(
-        {
-          success: false,
-          message: "Slug already exists.",
-        },
+        { success: false, message: "Slug already exists." },
         { status: 400 }
       );
     }
@@ -155,68 +131,38 @@ export async function PUT(request, { params }) {
     let imageUrl = oldCourse.image;
 
     if (image instanceof File && image.size > 0) {
-      const uploadDir = path.join(process.cwd(), "public", "uploads");
-      await fs.promises.mkdir(uploadDir, { recursive: true });
-
-      const safeName = image.name.replace(/\s+/g, "-");
-      const fileName = `${Date.now()}-${safeName}`;
-      const uploadPath = path.join(uploadDir, fileName);
-
-      const bytes = await image.arrayBuffer();
-      await fs.promises.writeFile(uploadPath, Buffer.from(bytes));
-
-      imageUrl = `/uploads/${fileName}`;
-
+      imageUrl = await handleUpload(image, "courses");
       if (oldCourse.image) {
-        const oldImagePath = path.join(process.cwd(), "public", oldCourse.image);
-        if (fs.existsSync(oldImagePath)) {
-          await fs.promises.unlink(oldImagePath);
-        }
+        await deleteUploadFile(oldCourse.image);
       }
     }
 
     const updatedCourse = await Course.findByIdAndUpdate(
       id,
-      {
-        title,
-        slug,
-        description,
-        duration,
-        level,
-        price,
-        status,
-        syllabus,
-        image: imageUrl,
-      },
-      {
-        new: true,
-        runValidators: true,
-      }
+      { title, slug, description, duration, level, price, status, syllabus, image: imageUrl },
+      { new: true, runValidators: true }
     );
 
     return NextResponse.json(
-      {
-        success: true,
-        message: "Course updated successfully",
-        data: updatedCourse,
-      },
+      { success: true, message: "Course updated successfully", data: updatedCourse },
       { status: 200 }
     );
   } catch (error) {
     return NextResponse.json(
-      {
-        success: false,
-        message: error.message,
-      },
+      { success: false, message: sanitizeError(error) },
       { status: 500 }
     );
   }
 }
 
-// ======================
 // DELETE COURSE (by Mongo _id)
-// ======================
 export async function DELETE(request, { params }) {
+  try {
+    await verifyAdmin(request);
+  } catch (err) {
+    return authErrorResponse(err);
+  }
+
   try {
     await dbConnect();
 
@@ -224,10 +170,7 @@ export async function DELETE(request, { params }) {
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return NextResponse.json(
-        {
-          success: false,
-          message: "Invalid course id",
-        },
+        { success: false, message: "Invalid course id" },
         { status: 400 }
       );
     }
@@ -236,38 +179,24 @@ export async function DELETE(request, { params }) {
 
     if (!course) {
       return NextResponse.json(
-        {
-          success: false,
-          message: "Course not found",
-        },
+        { success: false, message: "Course not found" },
         { status: 404 }
       );
     }
 
     if (course.image) {
-      const imagePath = path.join(process.cwd(), "public", course.image);
-      if (fs.existsSync(imagePath)) {
-        await fs.promises.unlink(imagePath);
-      }
+      await deleteUploadFile(course.image);
     }
 
     await Course.findByIdAndDelete(id);
 
     return NextResponse.json(
-      {
-        success: true,
-        message: "Course deleted successfully",
-      },
+      { success: true, message: "Course deleted successfully" },
       { status: 200 }
     );
   } catch (error) {
-    console.log(error);
-
     return NextResponse.json(
-      {
-        success: false,
-        message: error.message,
-      },
+      { success: false, message: sanitizeError(error) },
       { status: 500 }
     );
   }

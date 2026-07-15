@@ -1,8 +1,7 @@
 import { NextResponse } from "next/server";
 import dbConnect from "@/lib/db";
 import Course from "@/models/Course";
-import fs from "fs";
-import path from "path";
+import { verifyAdmin, authErrorResponse, sanitizeError, handleUpload } from "@/lib/api-helpers";
 
 export const runtime = "nodejs";
 
@@ -13,25 +12,24 @@ export async function GET() {
     const courses = await Course.find().sort({ createdAt: -1 });
 
     return NextResponse.json(
-      {
-        success: true,
-        count: courses.length,
-        data: courses,
-      },
+      { success: true, count: courses.length, data: courses },
       { status: 200 }
     );
   } catch (error) {
     return NextResponse.json(
-      {
-        success: false,
-        message: error.message,
-      },
+      { success: false, message: sanitizeError(error) },
       { status: 500 }
     );
   }
 }
 
 export async function POST(request) {
+  try {
+    await verifyAdmin(request);
+  } catch (err) {
+    return authErrorResponse(err);
+  }
+
   try {
     await dbConnect();
 
@@ -68,47 +66,41 @@ export async function POST(request) {
       !(image instanceof File)
     ) {
       return NextResponse.json(
-        {
-          success: false,
-          message: "All fields are required.",
-        },
+        { success: false, message: "All fields are required." },
+        { status: 400 }
+      );
+    }
+
+    if (title.length > 200 || slug.length > 100) {
+      return NextResponse.json(
+        { success: false, message: "Title or slug too long." },
+        { status: 400 }
+      );
+    }
+
+    if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug)) {
+      return NextResponse.json(
+        { success: false, message: "Slug must be lowercase alphanumeric with hyphens." },
         { status: 400 }
       );
     }
 
     if (Number.isNaN(duration) || Number.isNaN(price)) {
       return NextResponse.json(
-        {
-          success: false,
-          message: "Duration and price must be valid numbers.",
-        },
+        { success: false, message: "Duration and price must be valid numbers." },
         { status: 400 }
       );
     }
 
     const existingCourse = await Course.findOne({ slug });
-
     if (existingCourse) {
       return NextResponse.json(
-        {
-          success: false,
-          message: "Slug already exists.",
-        },
+        { success: false, message: "Slug already exists." },
         { status: 400 }
       );
     }
 
-    const uploadDir = path.join(process.cwd(), "public", "uploads");
-    await fs.promises.mkdir(uploadDir, { recursive: true });
-
-    const safeFileName = image.name.replace(/\s+/g, "-");
-    const fileName = `${Date.now()}-${safeFileName}`;
-    const uploadPath = path.join(uploadDir, fileName);
-
-    const bytes = await image.arrayBuffer();
-    await fs.promises.writeFile(uploadPath, Buffer.from(bytes));
-
-    const imageUrl = `/uploads/${fileName}`;
+    const imageUrl = await handleUpload(image, "courses");
 
     const course = await Course.create({
       title,
@@ -123,21 +115,12 @@ export async function POST(request) {
     });
 
     return NextResponse.json(
-      {
-        success: true,
-        message: "Course created successfully.",
-        data: course,
-      },
+      { success: true, message: "Course created successfully.", data: course },
       { status: 201 }
     );
   } catch (error) {
-    console.log(error);
-
     return NextResponse.json(
-      {
-        success: false,
-        message: error.message,
-      },
+      { success: false, message: sanitizeError(error) },
       { status: 500 }
     );
   }

@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
 import mongoose from "mongoose";
+
 import dbConnect from "@/lib/db";
 import Testimonial from "@/models/Testimonial";
-import fs from "fs";
-import path from "path";
+import { verifyAdmin, authErrorResponse, sanitizeError, handleUpload, deleteUploadFile } from "@/lib/api-helpers";
 
 export const runtime = "nodejs";
 
@@ -12,14 +12,11 @@ export async function GET(request, { params }) {
   try {
     await dbConnect();
 
-    const { id } = await params;
+    const { id } = params;
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return NextResponse.json(
-        {
-          success: false,
-          message: "Invalid testimonial id",
-        },
+        { success: false, message: "Invalid testimonial id." },
         { status: 400 }
       );
     }
@@ -28,27 +25,15 @@ export async function GET(request, { params }) {
 
     if (!testimonial) {
       return NextResponse.json(
-        {
-          success: false,
-          message: "Testimonial not found",
-        },
+        { success: false, message: "Testimonial not found." },
         { status: 404 }
       );
     }
 
-    return NextResponse.json(
-      {
-        success: true,
-        data: testimonial,
-      },
-      { status: 200 }
-    );
+    return NextResponse.json({ success: true, data: testimonial }, { status: 200 });
   } catch (error) {
     return NextResponse.json(
-      {
-        success: false,
-        message: error.message,
-      },
+      { success: false, message: sanitizeError(error) },
       { status: 500 }
     );
   }
@@ -57,28 +42,28 @@ export async function GET(request, { params }) {
 // UPDATE TESTIMONIAL
 export async function PUT(request, { params }) {
   try {
+    await verifyAdmin(request);
+  } catch (err) {
+    return authErrorResponse(err);
+  }
+
+  try {
     await dbConnect();
 
-    const { id } = await params;
+    const { id } = params;
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return NextResponse.json(
-        {
-          success: false,
-          message: "Invalid testimonial id",
-        },
+        { success: false, message: "Invalid testimonial id." },
         { status: 400 }
       );
     }
 
-    const oldTestimonial = await Testimonial.findById(id);
+    const existing = await Testimonial.findById(id);
 
-    if (!oldTestimonial) {
+    if (!existing) {
       return NextResponse.json(
-        {
-          success: false,
-          message: "Testimonial not found",
-        },
+        { success: false, message: "Testimonial not found." },
         { status: 404 }
       );
     }
@@ -92,86 +77,67 @@ export async function PUT(request, { params }) {
     const statusRaw = formData.get("status");
     const image = formData.get("image");
 
-    const rating = Number(ratingRaw);
-    const status =
-      statusRaw === "true" || statusRaw === true || statusRaw === "1";
+    const updates = {};
 
-    if (!name || !course || !message || !ratingRaw) {
-      return NextResponse.json(
-        {
-          success: false,
-          message: "All required fields must be filled.",
-        },
-        { status: 400 }
-      );
+    if (name) {
+      if (name.length > 100) {
+        return NextResponse.json(
+          { success: false, message: "Name too long." },
+          { status: 400 }
+        );
+      }
+      updates.name = name;
     }
-
-    if (Number.isNaN(rating) || rating < 1 || rating > 5) {
-      return NextResponse.json(
-        {
-          success: false,
-          message: "Rating must be between 1 and 5.",
-        },
-        { status: 400 }
-      );
+    if (course !== undefined) {
+      if (course.length > 200) {
+        return NextResponse.json(
+          { success: false, message: "Course too long." },
+          { status: 400 }
+        );
+      }
+      updates.course = course;
     }
-
-    let imageUrl = oldTestimonial.image;
+    if (message !== undefined) {
+      if (message.length > 5000) {
+        return NextResponse.json(
+          { success: false, message: "Message too long." },
+          { status: 400 }
+        );
+      }
+      updates.message = message;
+    }
+    if (ratingRaw !== null && ratingRaw !== undefined) {
+      const rating = Number(ratingRaw);
+      if (Number.isNaN(rating) || rating < 1 || rating > 5) {
+        return NextResponse.json(
+          { success: false, message: "Rating must be between 1 and 5." },
+          { status: 400 }
+        );
+      }
+      updates.rating = rating;
+    }
+    if (statusRaw !== null) {
+      updates.status = statusRaw === "true" || statusRaw === true || statusRaw === "1";
+    }
 
     if (image instanceof File && image.size > 0) {
-      const uploadDir = path.join(process.cwd(), "public", "uploads");
-      await fs.promises.mkdir(uploadDir, { recursive: true });
-
-      const fileName = `${Date.now()}-${image.name.replace(/\s+/g, "-")}`;
-      const uploadPath = path.join(uploadDir, fileName);
-
-      const bytes = await image.arrayBuffer();
-      await fs.promises.writeFile(uploadPath, Buffer.from(bytes));
-
-      imageUrl = `/uploads/${fileName}`;
-
-      if (oldTestimonial.image) {
-        const oldImagePath = path.join(
-          process.cwd(),
-          "public",
-          oldTestimonial.image
-        );
-        if (fs.existsSync(oldImagePath)) {
-          await fs.promises.unlink(oldImagePath);
-        }
-      }
+      const imageUrl = await handleUpload(image, "testimonials");
+      await deleteUploadFile(existing.image);
+      updates.image = imageUrl;
     }
 
-    const updatedTestimonial = await Testimonial.findByIdAndUpdate(
-      id,
-      {
-        name,
-        course,
-        message,
-        image: imageUrl,
-        rating,
-        status,
-      },
-      {
-        new: true,
-        runValidators: true,
-      }
-    );
+    const testimonial = await Testimonial.findByIdAndUpdate(id, updates, {
+      new: true,
+      runValidators: true,
+    });
 
     return NextResponse.json(
-      {
-        success: true,
-        message: "Testimonial updated successfully",
-        data: updatedTestimonial,
-      },
+      { success: true, message: "Testimonial updated successfully", data: testimonial },
       { status: 200 }
     );
   } catch (error) {
     return NextResponse.json(
-      {
-        success: false,
-        message: error.message,
-      },
+      { success: false, message: sanitizeError(error) },
       { status: 500 }
     );
   }
@@ -180,54 +146,43 @@ export async function PUT(request, { params }) {
 // DELETE TESTIMONIAL
 export async function DELETE(request, { params }) {
   try {
+    await verifyAdmin(request);
+  } catch (err) {
+    return authErrorResponse(err);
+  }
+
+  try {
     await dbConnect();
 
-    const { id } = await params;
+    const { id } = params;
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return NextResponse.json(
-        {
-          success: false,
-          message: "Invalid testimonial id",
-        },
+        { success: false, message: "Invalid testimonial id." },
         { status: 400 }
       );
     }
 
-    const testimonial = await Testimonial.findById(id);
+    const testimonial = await Testimonial.findByIdAndDelete(id);
 
     if (!testimonial) {
       return NextResponse.json(
-        {
-          success: false,
-          message: "Testimonial not found",
-        },
+        { success: false, message: "Testimonial not found." },
         { status: 404 }
       );
     }
 
     if (testimonial.image) {
-      const imagePath = path.join(process.cwd(), "public", testimonial.image);
-      if (fs.existsSync(imagePath)) {
-        await fs.promises.unlink(imagePath);
-      }
+      await deleteUploadFile(testimonial.image);
     }
 
-    await Testimonial.findByIdAndDelete(id);
-
     return NextResponse.json(
-      {
-        success: true,
-        message: "Testimonial deleted successfully",
-      },
+      { success: true, message: "Testimonial deleted successfully" },
       { status: 200 }
     );
   } catch (error) {
     return NextResponse.json(
-      {
-        success: false,
-        message: error.message,
-      },
+      { success: false, message: sanitizeError(error) },
       { status: 500 }
     );
   }
