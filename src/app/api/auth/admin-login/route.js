@@ -28,6 +28,13 @@ export async function POST(request) {
       );
     }
 
+    if (!adminEmail || !adminPassword) {
+      return NextResponse.json(
+        { success: false, message: "Admin credentials not configured. Set ADMIN_EMAIL and ADMIN_PASSWORD in Vercel env vars." },
+        { status: 500 }
+      );
+    }
+
     if (email !== adminEmail || password !== adminPassword) {
       return NextResponse.json(
         { success: false, message: "Invalid email or password." },
