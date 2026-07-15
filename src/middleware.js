@@ -38,8 +38,8 @@ export async function middleware(request) {
   const { pathname } = request.nextUrl;
   const method = request.method;
 
-  // === Admin page protection ===
-  if (pathname.startsWith("/admin")) {
+  // === Admin page protection (exclude /adminlog) ===
+  if (pathname.startsWith("/admin") && pathname !== "/adminlog") {
     const valid = await isValidAdmin(token);
     if (!valid) {
       return NextResponse.redirect(new URL("/login", request.url));
