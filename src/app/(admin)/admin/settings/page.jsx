@@ -24,7 +24,7 @@ export default function Page() {
   const fetchSettings = async () => {
     try {
       setLoading(true);
-      const res = await axios.get("/settings");
+      const res = await axios.get("/api/settings");
       if (res.data.success) {
         // Handles API returning either an array or a single object
         const data = res.data.data;
@@ -49,7 +49,7 @@ export default function Page() {
 
     try {
       setDeleting(true);
-      const res = await axios.delete(`/settings/${selectedSettings._id}`);
+      const res = await axios.delete(`/api/settings/${selectedSettings._id}`);
 
       if (res.data.success) {
         toast.success("Settings deleted successfully", { autoClose: 2000 });
