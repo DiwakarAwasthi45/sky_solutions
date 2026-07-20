@@ -126,7 +126,7 @@ export default function Page() {
             Sky Solution Institute
           </span>
 
-          <h1 className="text-5xl font-black mt-8 text-gray-900">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-black mt-8 text-gray-900">
             Start Your
             <span className="block text-sky-600">IT Career Today</span>
           </h1>
@@ -160,7 +160,7 @@ export default function Page() {
                 <input
                   {...register("fullName", { required: "Name is required" })}
                   placeholder="Full Name"
-                  className="w-full bg-transparent outline-none"
+                  className="w-full bg-transparent outline-none text-gray-900 placeholder:text-gray-400"
                 />
               </Input>
 
@@ -175,7 +175,7 @@ export default function Page() {
                     },
                   })}
                   placeholder="Email"
-                  className="w-full bg-transparent outline-none"
+                  className="w-full bg-transparent outline-none text-gray-900 placeholder:text-gray-400"
                 />
               </Input>
             </div>
@@ -184,7 +184,7 @@ export default function Page() {
               <input
                 {...register("phone", { required: "Phone is required" })}
                 placeholder="Phone Number"
-                className="w-full bg-transparent outline-none"
+                className="w-full bg-transparent outline-none text-gray-900 placeholder:text-gray-400"
               />
             </Input>
 
@@ -192,14 +192,14 @@ export default function Page() {
               <input
                 type="date"
                 {...register("dob", { required: "DOB required" })}
-                className="w-full bg-transparent outline-none"
+                className="w-full bg-transparent outline-none text-gray-900 placeholder:text-gray-400"
               />
             </Input>
 
             <Input icon={Users} error={errors.gender}>
               <select
                 {...register("gender", { required: "Gender required" })}
-                className="w-full bg-transparent outline-none"
+                className="w-full bg-transparent outline-none text-gray-900"
               >
                 <option value="">Select Gender</option>
                 <option>Male</option>
@@ -213,7 +213,7 @@ export default function Page() {
     {...register("course", {
       required: "Course required",
     })}
-    className="w-full bg-transparent outline-none"
+    className="w-full bg-transparent outline-none text-gray-900"
   >
     <option value="">
       {courseLoading ? "Loading Courses..." : "Select Course"}
@@ -231,7 +231,7 @@ export default function Page() {
             <Input icon={Clock} error={errors.batch}>
               <select
                 {...register("batch", { required: "Batch required" })}
-                className="w-full bg-transparent outline-none"
+                className="w-full bg-transparent outline-none text-gray-900"
               >
                 <option value="">Select Batch</option>
                 <option>Morning</option>
@@ -245,7 +245,7 @@ export default function Page() {
                 {...register("address", { required: "Address required" })}
                 placeholder="Address"
                 rows="3"
-                className="w-full bg-transparent outline-none resize-none"
+                className="w-full bg-transparent outline-none resize-none text-gray-900 placeholder:text-gray-400"
               />
             </Input>
 
@@ -253,7 +253,7 @@ export default function Page() {
               {...register("message")}
               placeholder="Additional Information"
               rows="4"
-              className="w-full border border-gray-200 rounded-xl p-4 outline-none"
+              className="w-full border border-gray-200 rounded-xl p-4 outline-none text-gray-900 placeholder:text-gray-400"
             />
 
             <button

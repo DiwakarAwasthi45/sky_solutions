@@ -68,7 +68,8 @@ export async function middleware(request) {
     if (
       pathname === "/api/auth/login" ||
       pathname === "/api/auth/admin-login" ||
-      pathname === "/api/auth/register"
+      pathname === "/api/auth/register" ||
+      pathname === "/api/contact"
     ) {
       return NextResponse.next();
     }
@@ -99,8 +100,8 @@ export async function middleware(request) {
       }
     }
 
-    // Admin-only routes: users, settings (write), enrollments
-    const adminOnlyRoutes = ["/api/users", "/api/enrollments", "/api/settings"];
+    // Admin-only routes: users, settings (write)
+    const adminOnlyRoutes = ["/api/users", "/api/settings"];
     const isAdminOnly = adminOnlyRoutes.some(
       (route) => pathname === route || pathname.startsWith(route + "/")
     );
@@ -112,6 +113,20 @@ export async function middleware(request) {
           { success: false, message: "Unauthorized" },
           { status: 401 }
         );
+      }
+      return NextResponse.next();
+    }
+
+    // Enrollments: GET requires admin, POST is public (enrollment form)
+    if (pathname === "/api/enrollments" || pathname.startsWith("/api/enrollments/")) {
+      if (method === "GET" || method === "PUT" || method === "DELETE") {
+        const valid = await isValidAdmin(token);
+        if (!valid) {
+          return NextResponse.json(
+            { success: false, message: "Unauthorized" },
+            { status: 401 }
+          );
+        }
       }
       return NextResponse.next();
     }

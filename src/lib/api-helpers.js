@@ -1,8 +1,5 @@
 import { NextResponse } from "next/server";
 import jwt from "jsonwebtoken";
-import crypto from "crypto";
-import path from "path";
-import fs from "fs";
 
 const JWT_SECRET = process.env.JWT_SECRET;
 
@@ -121,41 +118,16 @@ export async function handleUpload(file, subDir = "") {
     throw new Error(validation.error);
   }
 
-  const uploadDir = path.join(process.cwd(), "public", "uploads", subDir);
-  await fs.promises.mkdir(uploadDir, { recursive: true });
-
-  const ext = path.extname(file.name).toLowerCase();
-  const safeName = sanitizeFileName(path.basename(file.name, ext));
-  const uniqueId = crypto.randomUUID();
-  const fileName = `${uniqueId}-${safeName}${ext}`;
-
-  // Prevent path traversal
-  const resolved = path.resolve(uploadDir, fileName);
-  if (!resolved.startsWith(path.resolve(uploadDir))) {
-    throw new Error("Invalid file path.");
-  }
-
   const bytes = await file.arrayBuffer();
-  await fs.promises.writeFile(resolved, Buffer.from(bytes));
-
-  const urlPath = subDir
-    ? `/uploads/${subDir}/${fileName}`
-    : `/uploads/${fileName}`;
-  return urlPath;
+  const buffer = Buffer.from(bytes);
+  const base64 = buffer.toString("base64");
+  const dataUrl = `data:${file.type};base64,${base64}`;
+  return dataUrl;
 }
 
 export async function deleteUploadFile(imageUrl) {
-  if (!imageUrl) return;
-  try {
-    const filePath = path.join(process.cwd(), "public", imageUrl);
-    const resolved = path.resolve(filePath);
-    // Prevent path traversal on delete too
-    if (resolved.startsWith(path.resolve(process.cwd(), "public", "uploads"))) {
-      await fs.promises.unlink(resolved);
-    }
-  } catch {
-    // Ignore if file doesn't exist
-  }
+  // No-op: images are stored as base64 in MongoDB, nothing to delete on disk
+  return;
 }
 
 // ===== Field Whitelist Helper =====
@@ -168,4 +140,9 @@ export function pick(obj, fields) {
     }
   }
   return result;
+}
+
+export function sanitizeInput(str) {
+  if (typeof str !== "string") return "";
+  return str.replace(/<[^>]*>/g, "").trim();
 }

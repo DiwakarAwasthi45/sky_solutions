@@ -2,6 +2,7 @@
 
 import { useForm } from 'react-hook-form'
 import { Phone, Mail, MapPin, Send, Loader2 } from 'lucide-react'
+import { toast } from 'react-toastify'
 
 export default function ContactSection() {
   const {
@@ -19,17 +20,22 @@ export default function ContactSection() {
 
   const onSubmit = async (data) => {
     try {
-      // Replace with your actual API call, e.g.:
-      // const res = await axios.post('/api/contact', data);
+      const res = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      })
 
-      console.log(data)
-      await new Promise((resolve) => setTimeout(resolve, 800)) // simulate request
+      const result = await res.json()
 
-      alert('Message sent successfully!')
-      reset()
+      if (result.success) {
+        toast.success('Message sent successfully!')
+        reset()
+      } else {
+        toast.error(result.message || 'Failed to send message')
+      }
     } catch (error) {
-      console.error(error)
-      alert('Something went wrong. Please try again.')
+      toast.error('Something went wrong. Please try again.')
     }
   }
 
@@ -39,7 +45,7 @@ export default function ContactSection() {
 
         {/* HEADING */}
         <div className="text-center mb-14">
-          <h2 className="text-4xl font-black text-gray-900">
+          <h2 className="text-3xl sm:text-4xl font-black text-gray-900">
             Get In Touch
           </h2>
           <p className="mt-4 text-gray-600">
@@ -62,7 +68,7 @@ export default function ContactSection() {
                 <input
                   type="text"
                   placeholder="Your Name"
-                  className={`w-full rounded-xl border p-4 focus:outline-none focus:ring-2 focus:ring-[#1C8BCA] ${
+                  className={`w-full rounded-xl border p-4 focus:outline-none focus:ring-2 focus:ring-[#1C8BCA] text-gray-900 placeholder:text-gray-400 ${
                     errors.name ? "border-red-500" : ""
                   }`}
                   {...register("name", {
@@ -84,7 +90,7 @@ export default function ContactSection() {
                 <input
                   type="email"
                   placeholder="Your Email"
-                  className={`w-full rounded-xl border p-4 focus:outline-none focus:ring-2 focus:ring-[#1C8BCA] ${
+                  className={`w-full rounded-xl border p-4 focus:outline-none focus:ring-2 focus:ring-[#1C8BCA] text-gray-900 placeholder:text-gray-400 ${
                     errors.email ? "border-red-500" : ""
                   }`}
                   {...register("email", {
@@ -106,7 +112,7 @@ export default function ContactSection() {
                 <textarea
                   placeholder="Your Message"
                   rows="5"
-                  className={`w-full rounded-xl border p-4 focus:outline-none focus:ring-2 focus:ring-[#1C8BCA] ${
+                  className={`w-full rounded-xl border p-4 focus:outline-none focus:ring-2 focus:ring-[#1C8BCA] text-gray-900 placeholder:text-gray-400 ${
                     errors.message ? "border-red-500" : ""
                   }`}
                   {...register("message", {

@@ -4,10 +4,8 @@ import Enrollment from "@/models/Enrollment";
 import { verifyAdmin, authErrorResponse, sanitizeError, pick } from "@/lib/api-helpers";
 
 const ENROLLMENT_FIELDS = [
-  "name", "email", "phone", "course", "courseName",
-  "message", "address", "qualification", "occupation",
-  "paymentMethod", "paymentStatus", "enrollmentStatus",
-  "amount", "transactionId",
+  "fullName", "email", "phone", "dob", "gender", "course", "batch",
+  "address", "message", "paymentStatus", "enrollmentStatus",
 ];
 
 // GET: Fetch all enrollments (admin only)
