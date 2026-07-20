@@ -164,8 +164,8 @@ export default function Page() {
       formData.append("shortDescription", data.shortDescription);
       formData.append("description", data.description);
       formData.append("features", JSON.stringify(cleanedFeatures));
-      formData.append("status", data.status);
-      formData.append("featured", data.featured);
+      formData.append("status", String(data.status));
+      formData.append("featured", String(data.featured));
 
       if (data.image?.[0]) {
         formData.append("image", data.image[0]);

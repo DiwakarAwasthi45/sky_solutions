@@ -1,7 +1,5 @@
 import { NextResponse } from "next/server";
 import mongoose from "mongoose";
-import fs from "fs";
-import path from "path";
 
 import dbConnect from "@/lib/db";
 import Service from "@/models/Service";
@@ -76,7 +74,15 @@ export async function PUT(request, { params }) {
     const slug = formData.get("slug")?.toString().trim();
     const shortDescription = formData.get("shortDescription")?.toString().trim();
     const description = formData.get("description")?.toString().trim();
-    const features = formData.getAll("features").map((f) => f.toString().trim());
+    const featuresRaw = formData.get("features");
+    let features = [];
+    try {
+      features = JSON.parse(featuresRaw?.toString() || "[]");
+    } catch {
+      features = [];
+    }
+    if (!Array.isArray(features)) features = [];
+    features = features.filter((f) => typeof f === "string" && f.trim()).map((f) => f.trim());
     const statusRaw = formData.get("status");
     const featuredRaw = formData.get("featured");
     const image = formData.get("image");
