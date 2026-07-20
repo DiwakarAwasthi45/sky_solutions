@@ -8,6 +8,12 @@ const ALLOWED_IMAGE_TYPES = [
   "image/png",
   "image/webp",
   "image/gif",
+  "image/svg+xml",
+  "image/bmp",
+  "image/x-icon",
+  "image/vnd.microsoft.icon",
+  "image/tiff",
+  "image/avif",
 ];
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
