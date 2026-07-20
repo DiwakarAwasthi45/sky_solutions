@@ -7,7 +7,7 @@ import { verifyAdmin, authErrorResponse, sanitizeError, handleUpload, deleteUplo
 
 export const runtime = "nodejs";
 
-// GET SINGLE SERVICE (by slug)
+// GET SINGLE SERVICE (by id or slug)
 export async function GET(request, { params }) {
   try {
     await dbConnect();
@@ -16,12 +16,18 @@ export async function GET(request, { params }) {
 
     if (!id) {
       return NextResponse.json(
-        { success: false, message: "Slug is required" },
+        { success: false, message: "Id or slug is required" },
         { status: 400 }
       );
     }
 
-    const service = await Service.findOne({ slug: id });
+    let service;
+    if (mongoose.Types.ObjectId.isValid(id)) {
+      service = await Service.findById(id);
+    }
+    if (!service) {
+      service = await Service.findOne({ slug: id });
+    }
 
     if (!service) {
       return NextResponse.json(

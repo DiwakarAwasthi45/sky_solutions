@@ -64,10 +64,7 @@ class AuthError extends Error {
 // ===== Error Helpers =====
 
 export function sanitizeError(error) {
-  if (process.env.NODE_ENV === "development") {
-    return error.message || "Something went wrong";
-  }
-  return "Something went wrong";
+  return error.message || "Something went wrong";
 }
 
 export function apiError(message, status = 500) {

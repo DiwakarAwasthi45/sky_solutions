@@ -34,7 +34,7 @@ const ServiceSchema = new mongoose.Schema(
       trim: true,
     },
     features:{
-      type: String,
+      type: [String],
       default: [],
     },
 
