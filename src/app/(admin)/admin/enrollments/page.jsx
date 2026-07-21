@@ -41,7 +41,9 @@ export default function Page() {
         setEnrollments(res.data.data || []);
       }
     } catch (error) {
-      toast.error("Failed to load enrollments");
+      console.error(error);
+      const msg = error?.response?.data?.message || "Failed to load enrollments";
+      toast.error(msg);
     } finally {
       setLoading(false);
     }
