@@ -176,7 +176,7 @@ export default function ContactSection() {
           <div className="rounded-3xl overflow-hidden shadow-lg h-[600px] w-full">
 
             <iframe
-              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3533.0500000000003!2d80.1789!3d28.9652!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x39a1b1f3b3b3b3b3%3A0xabc123456789!2sMahendranagar%2C%20Kanchanpur!5e0!3m2!1sen!2snp!4v0000000000000"
+              src="https://www.google.com/maps?q=Bedkot+Nagarpalika-3+Shamadaiji+Kanchanpur+Nepal&output=embed"
               className="w-full h-full border-0"
               loading="lazy"
               referrerPolicy="strict-origin-when-cross-origin"
