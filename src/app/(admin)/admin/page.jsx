@@ -15,6 +15,7 @@ import {
   Settings,
   ArrowUpRight,
 } from "lucide-react";
+import AnimatedCounter from "@/components/AnimatedCounter";
 
 const statCards = [
   {
@@ -122,7 +123,9 @@ export default function Page() {
               <div className="flex items-start justify-between">
                 <div className="space-y-2">
                   <p className="text-sm font-medium text-gray-500">{card.title}</p>
-                  <p className="text-3xl font-bold text-gray-900 tabular-nums">{total}</p>
+                  <p className="text-3xl font-bold text-gray-900 tabular-nums">
+                    <AnimatedCounter key={total} from={0} to={total} />
+                  </p>
                 </div>
                 <div className={`p-3 rounded-xl ${card.lightBg} group-hover:scale-110 transition-transform duration-200`}>
                   <Icon size={22} className={card.textColor} />

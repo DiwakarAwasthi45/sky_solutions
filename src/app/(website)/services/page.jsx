@@ -5,6 +5,8 @@ import Link from "next/link";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { ArrowRight } from "lucide-react";
+import AnimatedCounter from "@/components/AnimatedCounter";
+import ScrollReveal from "@/components/ScrollReveal";
 
 export default function page() {
   const [services, setServices] = useState([]);
@@ -140,25 +142,33 @@ export default function page() {
       {/* Statistics */}
       <section className="bg-[#1877AE] py-20">
         <div className="mx-auto grid max-w-7xl gap-10 px-6 text-center text-white md:grid-cols-4">
-          <div>
-            <h3 className="text-5xl font-black">3000+</h3>
+          <ScrollReveal>
+            <h3 className="text-5xl font-black">
+              <AnimatedCounter from={0} to={3000} suffix="+" />
+            </h3>
             <p className="mt-2 text-blue-100">Happy Students</p>
-          </div>
+          </ScrollReveal>
 
-          <div>
-            <h3 className="text-5xl font-black">500+</h3>
+          <ScrollReveal delay={0.1}>
+            <h3 className="text-5xl font-black">
+              <AnimatedCounter from={0} to={500} suffix="+" />
+            </h3>
             <p className="mt-2 text-blue-100">Projects Completed</p>
-          </div>
+          </ScrollReveal>
 
-          <div>
-            <h3 className="text-5xl font-black">10+</h3>
+          <ScrollReveal delay={0.2}>
+            <h3 className="text-5xl font-black">
+              <AnimatedCounter from={0} to={10} suffix="+" />
+            </h3>
             <p className="mt-2 text-blue-100">Years Experience</p>
-          </div>
+          </ScrollReveal>
 
-          <div>
-            <h3 className="text-5xl font-black">100%</h3>
+          <ScrollReveal delay={0.3}>
+            <h3 className="text-5xl font-black">
+              <AnimatedCounter from={0} to={100} suffix="%" />
+            </h3>
             <p className="mt-2 text-blue-100">Customer Satisfaction</p>
-          </div>
+          </ScrollReveal>
         </div>
       </section>
 

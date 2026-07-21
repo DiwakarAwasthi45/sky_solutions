@@ -12,6 +12,8 @@ import {
   Target,
   Eye,
 } from 'lucide-react'
+import AnimatedCounter from '@/components/AnimatedCounter'
+import ScrollReveal from '@/components/ScrollReveal'
 
 export default function AboutPage() {
   const sectionRef = useRef(null)
@@ -155,36 +157,46 @@ export default function AboutPage() {
             </div>
 
             <div className="absolute -bottom-6 -left-6 rounded-2xl bg-white p-6 shadow-2xl">
-              <h2 className="text-4xl font-black text-[#146A9A]">10+</h2>
+              <h2 className="text-4xl font-black text-[#146A9A]">
+                <AnimatedCounter from={0} to={10} suffix="+" />
+              </h2>
               <p className="mt-1 text-sm text-gray-600">Years of Excellence</p>
             </div>
           </div>
         </div>
 
         <div className="mt-20 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          <div className="stat-card rounded-3xl border border-white/20 bg-white/95 p-8 text-center shadow-xl backdrop-blur">
+          <ScrollReveal className="stat-card rounded-3xl border border-white/20 bg-white/95 p-8 text-center shadow-xl backdrop-blur">
             <Users className="mx-auto text-[#146A9A]" size={40} />
-            <h3 className="mt-4 text-4xl font-black text-gray-900">3000+</h3>
+            <h3 className="mt-4 text-4xl font-black text-gray-900">
+              <AnimatedCounter from={0} to={3000} suffix="+" />
+            </h3>
             <p className="mt-2 text-gray-600">Students Trained</p>
-          </div>
+          </ScrollReveal>
 
-          <div className="stat-card rounded-3xl border border-white/20 bg-white/95 p-8 text-center shadow-xl backdrop-blur">
+          <ScrollReveal className="stat-card rounded-3xl border border-white/20 bg-white/95 p-8 text-center shadow-xl backdrop-blur" delay={0.1}>
             <GraduationCap className="mx-auto text-[#146A9A]" size={40} />
-            <h3 className="mt-4 text-4xl font-black text-gray-900">25+</h3>
+            <h3 className="mt-4 text-4xl font-black text-gray-900">
+              <AnimatedCounter from={0} to={25} suffix="+" />
+            </h3>
             <p className="mt-2 text-gray-600">Professional Courses</p>
-          </div>
+          </ScrollReveal>
 
-          <div className="stat-card rounded-3xl border border-white/20 bg-white/95 p-8 text-center shadow-xl backdrop-blur">
+          <ScrollReveal className="stat-card rounded-3xl border border-white/20 bg-white/95 p-8 text-center shadow-xl backdrop-blur" delay={0.2}>
             <Laptop className="mx-auto text-[#146A9A]" size={40} />
-            <h3 className="mt-4 text-4xl font-black text-gray-900">100%</h3>
+            <h3 className="mt-4 text-4xl font-black text-gray-900">
+              <AnimatedCounter from={0} to={100} suffix="%" />
+            </h3>
             <p className="mt-2 text-gray-600">Practical Learning</p>
-          </div>
+          </ScrollReveal>
 
-          <div className="stat-card rounded-3xl border border-white/20 bg-white/95 p-8 text-center shadow-xl backdrop-blur">
+          <ScrollReveal className="stat-card rounded-3xl border border-white/20 bg-white/95 p-8 text-center shadow-xl backdrop-blur" delay={0.3}>
             <Award className="mx-auto text-[#146A9A]" size={40} />
-            <h3 className="mt-4 text-4xl font-black text-gray-900">98%</h3>
+            <h3 className="mt-4 text-4xl font-black text-gray-900">
+              <AnimatedCounter from={0} to={98} suffix="%" />
+            </h3>
             <p className="mt-2 text-gray-600">Student Satisfaction</p>
-          </div>
+          </ScrollReveal>
         </div>
 
         <div className="mt-24">

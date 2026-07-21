@@ -7,6 +7,8 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 import gsap from "gsap";
 import axios from "axios";
+import AnimatedCounter from "@/components/AnimatedCounter";
+import ScrollReveal from "@/components/ScrollReveal";
 
  function page() {
    const [facilities, setFacilities] = useState([]);
@@ -286,22 +288,28 @@ import axios from "axios";
 
             
             {/* 📊 STATS */}
-            <div className=" stat-card mt-16 grid grid-cols-2 sm:grid-cols-4 gap-7">
+            <div className="stat-card mt-16 grid grid-cols-2 sm:grid-cols-4 gap-7">
 
-              <div className="bg-white/10 backdrop-blur rounded-xl p-4 text-center">
-                <h3 className="text-2xl font-black text-white">1000+</h3>
+              <ScrollReveal className="bg-white/10 backdrop-blur rounded-xl p-4 text-center">
+                <h3 className="text-2xl font-black text-white">
+                  <AnimatedCounter from={0} to={1000} suffix="+" />
+                </h3>
                 <p className="text-xs text-gray-200 mt-1">Students</p>
-              </div>
+              </ScrollReveal>
 
-              <div className="bg-white/10 backdrop-blur rounded-xl p-4 text-center">
-                <h3 className="text-2xl font-black text-white">9+</h3>
+              <ScrollReveal className="bg-white/10 backdrop-blur rounded-xl p-4 text-center" delay={0.1}>
+                <h3 className="text-2xl font-black text-white">
+                  <AnimatedCounter from={0} to={9} suffix="+" />
+                </h3>
                 <p className="text-xs text-gray-200 mt-1">Courses</p>
-              </div>
+              </ScrollReveal>
 
-              <div className="bg-white/10 backdrop-blur rounded-xl p-4 text-center">
-                <h3 className="text-2xl font-black text-white">95%</h3>
+              <ScrollReveal className="bg-white/10 backdrop-blur rounded-xl p-4 text-center" delay={0.2}>
+                <h3 className="text-2xl font-black text-white">
+                  <AnimatedCounter from={0} to={95} suffix="%" />
+                </h3>
                 <p className="text-xs text-gray-200 mt-1">Success</p>
-              </div>
+              </ScrollReveal>
 
             </div>
 
@@ -423,7 +431,9 @@ import axios from "axios";
             />
 
             <div className="absolute -bottom-8 -right-8 bg-[#1C8BCA] text-white rounded-3xl p-8 shadow-xl">
-              <h3 className="text-4xl font-bold">10+</h3>
+              <h3 className="text-4xl font-bold">
+                <AnimatedCounter from={0} to={10} suffix="+" />
+              </h3>
               <p className="mt-2">Years of Experience</p>
             </div>
           </div>
