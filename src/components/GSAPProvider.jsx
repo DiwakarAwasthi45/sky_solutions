@@ -2,28 +2,25 @@
 import { useEffect, useRef } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { ScrollSmoother } from "gsap/ScrollSmoother";
 
-gsap.registerPlugin(ScrollTrigger, ScrollSmoother);
+gsap.registerPlugin(ScrollTrigger);
 
 export default function GSAPProvider({ children }) {
   const wrapper = useRef(null);
+  const content = useRef(null);
 
   useEffect(() => {
-    const ctx = gsap.context(() => {
-      ScrollSmoother.create({
-        wrapper: wrapper.current,
-        content: wrapper.current,
-        smooth: 1,
-        effects: true,
-      });
-    });
-
+    ScrollTrigger.refresh();
     return () => {
-      ctx.revert();
       ScrollTrigger.getAll().forEach((t) => t.kill());
     };
   }, []);
 
-  return <div ref={wrapper}>{children}</div>;
+  return (
+    <div ref={wrapper} id="smooth-wrapper">
+      <div ref={content} id="smooth-content">
+        {children}
+      </div>
+    </div>
+  );
 }
