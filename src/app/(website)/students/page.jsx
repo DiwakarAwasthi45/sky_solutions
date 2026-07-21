@@ -89,9 +89,10 @@ import ScrollReveal from "@/components/ScrollReveal";
         }
       } catch (error) {
         console.error(error);
-        toast.error("Failed to load gallery");
+        const msg = error?.response?.data?.message || "Failed to load gallery";
+        toast.error(msg);
       } finally {
-        setLoading(true);
+        setLoading(false);
       }
     };
 

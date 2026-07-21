@@ -29,7 +29,9 @@ export default function Page() {
         setGallery(res.data.data || []);
       }
     } catch (error) {
-      toast.error("Failed to load gallery");
+      console.error(error);
+      const msg = error?.response?.data?.message || "Failed to load gallery";
+      toast.error(msg);
     } finally {
       setLoading(false);
     }
