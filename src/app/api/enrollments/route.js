@@ -19,7 +19,9 @@ export async function GET(request) {
   try {
     await dbConnect();
 
-    const enrollments = await Enrollment.find().sort({ createdAt: -1 });
+    const enrollments = await Enrollment.find()
+      .populate("course", "title")
+      .sort({ createdAt: -1 });
 
     return NextResponse.json({
       success: true,
