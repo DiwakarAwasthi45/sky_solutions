@@ -4,7 +4,7 @@ import { useForm } from 'react-hook-form'
 import { Phone, Mail, MapPin, Send, Loader2 } from 'lucide-react'
 import { toast } from 'react-toastify'
 
-export default function ContactSection() {
+export default function page() {
   const {
     register,
     handleSubmit,
@@ -68,7 +68,7 @@ export default function ContactSection() {
                 <input
                   type="text"
                   placeholder="Your Name"
-                  className={`w-full rounded-xl border p-4 focus:outline-none focus:ring-2 focus:ring-[#1C8BCA] text-gray-900 placeholder:text-gray-400 ${
+                  className={`w-full rounded-xl border  border-gray-300  p-4 focus:outline-none focus:ring-2 focus:ring-[#1C8BCA] text-gray-900 placeholder:text-gray-400 ${
                     errors.name ? "border-red-500" : ""
                   }`}
                   {...register("name", {
@@ -90,7 +90,7 @@ export default function ContactSection() {
                 <input
                   type="email"
                   placeholder="Your Email"
-                  className={`w-full rounded-xl border p-4 focus:outline-none focus:ring-2 focus:ring-[#1C8BCA] text-gray-900 placeholder:text-gray-400 ${
+                  className={`w-full rounded-xl border  border-gray-300  p-4 focus:outline-none focus:ring-2 focus:ring-[#1C8BCA] text-gray-900 placeholder:text-gray-400 ${
                     errors.email ? "border-red-500" : ""
                   }`}
                   {...register("email", {
@@ -112,7 +112,7 @@ export default function ContactSection() {
                 <textarea
                   placeholder="Your Message"
                   rows="5"
-                  className={`w-full rounded-xl border p-4 focus:outline-none focus:ring-2 focus:ring-[#1C8BCA] text-gray-900 placeholder:text-gray-400 ${
+                  className={`w-full rounded-xl border border-gray-300 p-4 focus:outline-none focus:ring-2 focus:ring-[#1C8BCA] text-gray-900 placeholder:text-gray-400 ${
                     errors.message ? "border-red-500" : ""
                   }`}
                   {...register("message", {
@@ -160,7 +160,7 @@ export default function ContactSection() {
 
               <div className="flex items-center gap-3">
                 <Mail size={18} className="text-[#1C8BCA]" />
-                info@skysolutions.com
+               Skysolutions1987@gmail.com
               </div>
 
               <div className="flex items-center gap-3">
