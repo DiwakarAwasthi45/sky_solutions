@@ -3,12 +3,15 @@ import { useEffect, useRef } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
+gsap.registerPlugin(ScrollTrigger);
+
 export default function AnimatedCounter({ from = 0, to, suffix = "", decimals = 0, className = "" }) {
   const el = useRef(null);
 
   useEffect(() => {
     const elRef = el.current;
     if (!elRef) return;
+    if (to === undefined || to === null) return;
 
     const obj = { val: from };
 

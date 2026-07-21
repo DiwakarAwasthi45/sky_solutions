@@ -2,7 +2,6 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "../globals.css";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
-import GSAPProvider from "@/components/GSAPProvider";
 
 
 const geistSans = Geist({
@@ -22,7 +21,6 @@ export const metadata = {
 
 export default function WebsiteLayout({ children }) {
   return (
-    <GSAPProvider>
     <div
       className={`${geistSans.variable} ${geistMono.variable} min-h-screen flex flex-col antialiased`}
     >
@@ -30,6 +28,5 @@ export default function WebsiteLayout({ children }) {
       <main className="flex-1">{children}</main>
       <Footer />
     </div>
-    </GSAPProvider>
   );
 }

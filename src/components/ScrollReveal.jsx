@@ -3,6 +3,8 @@ import { useEffect, useRef } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
+gsap.registerPlugin(ScrollTrigger);
+
 export default function ScrollReveal({ children, className = "", from = { y: 60, opacity: 0 }, to = { y: 0, opacity: 1 }, delay = 0, duration = 0.8 }) {
   const el = useRef(null);
 
