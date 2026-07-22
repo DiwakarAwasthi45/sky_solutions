@@ -727,7 +727,7 @@ import ScrollReveal from "@/components/ScrollReveal";
               <Phone className="text-[#1C8BCA]" />
               <div>
                 <h3 className="font-bold text-gray-900">Phone</h3>
-                <p className="text-gray-600 mt-1">+977-98XXXXXXXX</p>
+                <p className="text-gray-600 mt-1">+977-9867868324</p>
               </div>
             </div>
 
@@ -735,7 +735,7 @@ import ScrollReveal from "@/components/ScrollReveal";
               <Mail className="text-[#1C8BCA]" />
               <div>
                 <h3 className="font-bold text-gray-900">Email</h3>
-                <p className="text-gray-600 mt-1">info@skysolutions.com</p>
+                <p className="text-gray-600 mt-1">skysolutions1987@gmail.com</p>
               </div>
             </div>
 
