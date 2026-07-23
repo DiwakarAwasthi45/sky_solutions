@@ -188,11 +188,8 @@ export default function GalleryPage() {
                   </div>
 
                   <div className="p-4">
-                    <h3 className="font-bold text-gray-900 text-sm truncate">
-                      {item.title}
-                    </h3>
                     {item.category && (
-                      <span className="inline-block mt-1.5 px-2 py-0.5 bg-sky-50 text-sky-600 text-xs rounded-full font-medium">
+                      <span className="inline-block px-2 py-0.5 bg-sky-50 text-sky-600 text-xs rounded-full font-medium">
                         {item.category}
                       </span>
                     )}
