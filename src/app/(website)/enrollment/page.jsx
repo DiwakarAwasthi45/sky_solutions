@@ -25,8 +25,8 @@ import {
 const Input = ({ icon: Icon, error, children }) => (
   <div>
     <div
-      className={`flex items-center gap-3 rounded-xl border px-4 py-3 ${
-        error ? "border-red-400 bg-red-50" : "border-gray-200 bg-gray-50"
+      className={`flex items-center gap-3 rounded-xl border-2 px-4 py-3 ${
+        error ? "border-red-400 bg-red-50" : "border-gray-300 bg-white"
       } focus-within:border-sky-500 transition`}
     >
       <Icon size={20} className={error ? "text-red-500" : "text-sky-600"} />
@@ -117,8 +117,8 @@ export default function Page() {
   };
 
   return (
-    <section className="min-h-screen bg-gradient-to-br from-sky-50 via-white to-blue-100 py-16">
-      <div className="max-w-7xl mx-auto px-5 grid lg:grid-cols-2 gap-14">
+    <section className="min-h-screen bg-gradient-to-br from-sky-50 via-white to-blue-100 py-10 sm:py-16">
+      <div className="max-w-7xl mx-auto px-4 sm:px-5 grid lg:grid-cols-2 gap-10 sm:gap-14">
         {/* LEFT */}
         <div>
           <span className="inline-flex items-center gap-2 bg-sky-100 text-sky-700 px-5 py-2 rounded-full font-semibold">
@@ -150,7 +150,7 @@ export default function Page() {
         </div>
 
         {/* FORM */}
-        <div className="bg-white rounded-3xl shadow-xl p-8">
+        <div className="bg-white rounded-3xl shadow-xl p-5 sm:p-8">
           <h2 className="text-3xl font-bold">Course Enrollment</h2>
           <p className="text-gray-500 mt-2 mb-8">Fill the application form</p>
 
@@ -160,7 +160,7 @@ export default function Page() {
                 <input
                   {...register("fullName", { required: "Name is required" })}
                   placeholder="Full Name"
-                  className="w-full bg-transparent outline-none text-gray-900 placeholder:text-gray-400"
+                  className="w-full bg-transparent outline-none text-gray-900 placeholder:text-gray-500"
                 />
               </Input>
 
@@ -175,7 +175,7 @@ export default function Page() {
                     },
                   })}
                   placeholder="Email"
-                  className="w-full bg-transparent outline-none text-gray-900 placeholder:text-gray-400"
+                  className="w-full bg-transparent outline-none text-gray-900 placeholder:text-gray-500"
                 />
               </Input>
             </div>
@@ -253,7 +253,7 @@ export default function Page() {
               {...register("message")}
               placeholder="Additional Information"
               rows="4"
-              className="w-full border border-gray-200 rounded-xl p-4 outline-none text-gray-900 placeholder:text-gray-400"
+              className="w-full border-2 border-gray-300 rounded-xl p-4 outline-none text-gray-900 placeholder:text-gray-500"
             />
 
             <button
