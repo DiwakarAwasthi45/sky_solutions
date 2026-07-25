@@ -53,7 +53,7 @@ import ScrollReveal from "@/components/ScrollReveal";
         console.error(error);
         toast.error("Failed to load facilities");
       } finally {
-        setLoading(true);
+        setLoading(false);
       }
     };
 
@@ -72,7 +72,7 @@ import ScrollReveal from "@/components/ScrollReveal";
         console.error(error);
         toast.error("Failed to load testimonials");
       } finally {
-        setLoading(true);
+        setLoading(false);
       }
     };
 
@@ -344,27 +344,27 @@ import ScrollReveal from "@/components/ScrollReveal";
       </div>
     </section>
 
-<section className="py-24 bg-gradient-to-b from-sky-50 via-white to-white">
-  <div className="max-w-7xl mx-auto px-6">
+<section className="py-16 sm:py-24 bg-gradient-to-b from-sky-50 via-white to-white">
+  <div className="max-w-7xl mx-auto px-4 sm:px-6">
     {/* Heading */}
-    <div className="text-center mb-16">
-      <span className="inline-block rounded-full bg-sky-100 px-5 py-2 text-sm font-semibold text-[#1C8BCA]">
+    <div className="text-center mb-10 sm:mb-16">
+      <span className="inline-block rounded-full bg-sky-100 px-4 sm:px-5 py-2 text-xs sm:text-sm font-semibold text-[#1C8BCA]">
         Our Services
       </span>
 
-      <h2 className="mt-5 text-4xl md:text-5xl font-extrabold text-gray-900">
+      <h2 className="mt-4 sm:mt-5 text-3xl sm:text-4xl md:text-5xl font-extrabold text-gray-900">
         Professional
         <span className="text-[#1C8BCA]"> IT Services</span>
       </h2>
 
-      <p className="mt-5 max-w-2xl mx-auto text-lg text-gray-600">
+      <p className="mt-4 sm:mt-5 max-w-2xl mx-auto text-base sm:text-lg text-gray-600 px-2">
         We provide reliable computer hardware, software, networking, and IT
         support services for homes, businesses, schools, and organizations.
       </p>
     </div>
 
     {/* Service Cards */}
-    <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+    <div className="grid gap-6 sm:gap-8 sm:grid-cols-2 lg:grid-cols-3">
       {services.map((service) => (
         <div
           key={service._id}
@@ -386,7 +386,7 @@ import ScrollReveal from "@/components/ScrollReveal";
           </div>
 
           {/* Content */}
-          <div className="p-7">
+          <div className="p-5 sm:p-7">
             <h3 className="text-2xl font-bold text-gray-900 transition group-hover:text-[#1C8BCA]">
               {service.title}
             </h3>
@@ -408,10 +408,10 @@ import ScrollReveal from "@/components/ScrollReveal";
     </div>
 
     {/* Bottom CTA */}
-    <div className="mt-16 text-center">
+    <div className="mt-10 sm:mt-16 text-center">
       <Link
         href="/services"
-        className="inline-flex items-center gap-3 rounded-full border-2 border-[#1C8BCA] px-8 py-4 font-semibold text-[#1C8BCA] transition hover:bg-[#1C8BCA] hover:text-white"
+        className="inline-flex items-center gap-3 rounded-full border-2 border-[#1C8BCA] px-6 sm:px-8 py-3 sm:py-4 font-semibold text-[#1C8BCA] transition hover:bg-[#1C8BCA] hover:text-white text-sm sm:text-base"
       >
         View All Services
         <ArrowRight size={20} />
@@ -420,37 +420,37 @@ import ScrollReveal from "@/components/ScrollReveal";
   </div>
 </section>
 
- <section className="py-24 bg-white">
-      <div className="max-w-7xl mx-auto px-6">
-        <div className="grid lg:grid-cols-2 gap-16 items-center">
+ <section className="py-16 sm:py-24 bg-white">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6">
+        <div className="grid lg:grid-cols-2 gap-10 sm:gap-16 items-center">
           {/* Left Image */}
           <div className="relative">
             <img
               src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=900&q=80"
               alt="About Us"
-              className="rounded-3xl shadow-2xl w-full h-[550px] object-cover"
+              className="rounded-3xl shadow-2xl w-full h-[350px] sm:h-[450px] md:h-[550px] object-cover"
             />
 
-            <div className="absolute -bottom-8 -right-8 bg-[#1C8BCA] text-white rounded-3xl p-8 shadow-xl">
-              <h3 className="text-4xl font-bold">
+            <div className="absolute -bottom-4 sm:-bottom-8 -right-4 sm:-right-8 bg-[#1C8BCA] text-white rounded-2xl sm:rounded-3xl p-5 sm:p-8 shadow-xl">
+              <h3 className="text-3xl sm:text-4xl font-bold">
                 <AnimatedCounter from={0} to={10} suffix="+" />
               </h3>
-              <p className="mt-2">Years of Experience</p>
+              <p className="mt-1 sm:mt-2 text-sm sm:text-base">Years of Experience</p>
             </div>
           </div>
 
           {/* Right Content */}
           <div>
-            <span className="inline-block rounded-full bg-sky-100 px-5 py-2 text-sm font-semibold text-[#1C8BCA]">
+            <span className="inline-block rounded-full bg-sky-100 px-4 sm:px-5 py-2 text-xs sm:text-sm font-semibold text-[#1C8BCA]">
               About Us
             </span>
 
-            <h2 className="mt-6 text-4xl md:text-5xl font-extrabold text-gray-900 leading-tight">
+            <h2 className="mt-5 sm:mt-6 text-3xl sm:text-4xl md:text-5xl font-extrabold text-gray-900 leading-tight">
               Building Skills,
               <span className="text-[#1C8BCA]"> Empowering Careers</span>
             </h2>
 
-            <p className="mt-6 text-lg text-gray-600 leading-8">
+            <p className="mt-5 sm:mt-6 text-base sm:text-lg text-gray-600 leading-7 sm:leading-8">
               We are a professional IT Training Institute dedicated to helping
               students, job seekers, and professionals gain practical knowledge
               in computer technology. Our mission is to provide quality
@@ -458,7 +458,7 @@ import ScrollReveal from "@/components/ScrollReveal";
               under one roof.
             </p>
 
-            <p className="mt-4 text-lg text-gray-600 leading-8">
+            <p className="mt-3 sm:mt-4 text-base sm:text-lg text-gray-600 leading-7 sm:leading-8">
               With experienced instructors, modern computer labs, and hands-on
               learning, we prepare our students for successful careers in the
               digital world.
@@ -503,29 +503,29 @@ import ScrollReveal from "@/components/ScrollReveal";
       </div>
     </section>
 
-     <section className="py-24 bg-gradient-to-b from-white to-sky-50">
-      <div className="max-w-7xl mx-auto px-6">
+     <section className="py-16 sm:py-24 bg-gradient-to-b from-white to-sky-50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6">
 
         {/* Heading */}
-        <div className="text-center mb-16">
-          <span className="inline-flex items-center gap-2 rounded-full bg-sky-100 px-5 py-2 text-sm font-semibold text-[#1C8BCA]">
+        <div className="text-center mb-10 sm:mb-16">
+          <span className="inline-flex items-center gap-2 rounded-full bg-sky-100 px-4 sm:px-5 py-2 text-xs sm:text-sm font-semibold text-[#1C8BCA]">
             <ImageIcon size={16} />
             Gallery
           </span>
 
-          <h2 className="mt-5 text-4xl md:text-5xl font-extrabold text-gray-900">
+          <h2 className="mt-4 sm:mt-5 text-3xl sm:text-4xl md:text-5xl font-extrabold text-gray-900">
             Explore Our
             <span className="text-[#1C8BCA]"> Learning Environment</span>
           </h2>
 
-          <p className="mt-5 max-w-2xl mx-auto text-lg text-gray-600">
+          <p className="mt-4 sm:mt-5 max-w-2xl mx-auto text-base sm:text-lg text-gray-600 px-2">
             Take a glimpse of our classrooms, computer labs, practical
             training sessions, workshops, and student activities.
           </p>
         </div>
 
         {/* Images */}
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
           {gallery.map((item) => (
             <div
               key={item._id}
@@ -534,7 +534,7 @@ import ScrollReveal from "@/components/ScrollReveal";
               <img
                 src={item.image}
                 alt={item.title}
-                className="h-72 w-full object-cover transition duration-700 group-hover:scale-110"
+                className="h-56 sm:h-64 md:h-72 w-full object-cover transition duration-700 group-hover:scale-110"
               />
 
               <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent opacity-0 transition duration-500 group-hover:opacity-100" />
@@ -549,10 +549,10 @@ import ScrollReveal from "@/components/ScrollReveal";
         </div>
 
         {/* Button */}
-        <div className="mt-16 text-center">
+        <div className="mt-10 sm:mt-16 text-center">
           <Link
             href="/gallery"
-            className="inline-flex items-center gap-2 rounded-full bg-[#1C8BCA] px-8 py-4 font-semibold text-white transition hover:bg-sky-700"
+            className="inline-flex items-center gap-2 rounded-full bg-[#1C8BCA] px-6 sm:px-8 py-3 sm:py-4 font-semibold text-white transition hover:bg-sky-700 text-sm sm:text-base"
           >
             View Full Gallery
             <ArrowRight size={20} />
@@ -561,28 +561,28 @@ import ScrollReveal from "@/components/ScrollReveal";
       </div>
     </section>
 
-  <section className="py-24 bg-gradient-to-b from-slate-50 to-white">
-      <div className="max-w-7xl mx-auto px-6">
+  <section className="py-16 sm:py-24 bg-gradient-to-b from-slate-50 to-white">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6">
 
         {/* Heading */}
-        <div className="text-center mb-16">
-          <span className="inline-block rounded-full bg-sky-100 px-5 py-2 text-sm font-semibold text-[#1C8BCA]">
+        <div className="text-center mb-10 sm:mb-16">
+          <span className="inline-block rounded-full bg-sky-100 px-4 sm:px-5 py-2 text-xs sm:text-sm font-semibold text-[#1C8BCA]">
             Our Facilities
           </span>
 
-          <h2 className="mt-5 text-4xl md:text-5xl font-extrabold text-gray-900">
+          <h2 className="mt-4 sm:mt-5 text-3xl sm:text-4xl md:text-5xl font-extrabold text-gray-900">
             Everything You Need for
             <span className="text-[#1C8BCA]"> Quality Learning</span>
           </h2>
 
-          <p className="mt-5 max-w-3xl mx-auto text-lg text-gray-600">
+          <p className="mt-4 sm:mt-5 max-w-3xl mx-auto text-base sm:text-lg text-gray-600 px-2">
             We provide a modern learning environment equipped with advanced
             technology, experienced instructors, and student-friendly facilities
             to help you achieve your career goals.
           </p>
         </div>
 
-    <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
+    <div className="grid gap-6 sm:gap-8 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
   {facilities.map((facility) => (
     <div
       key={facility._id}
@@ -611,10 +611,10 @@ import ScrollReveal from "@/components/ScrollReveal";
   ))}
 </div>
         {/* CTA */}
-        <div className="mt-16 text-center">
+        <div className="mt-10 sm:mt-16 text-center">
           <Link
             href="/contact"
-            className="inline-flex items-center gap-2 rounded-full bg-[#1C8BCA] px-8 py-4 font-semibold text-white transition hover:bg-sky-700"
+            className="inline-flex items-center gap-2 rounded-full bg-[#1C8BCA] px-6 sm:px-8 py-3 sm:py-4 font-semibold text-white transition hover:bg-sky-700 text-sm sm:text-base"
           >
             Visit Our Institute
             <ArrowRight size={20} />
@@ -624,28 +624,28 @@ import ScrollReveal from "@/components/ScrollReveal";
       </div>
     </section>
 
-      <section className="py-24 bg-gradient-to-b from-white to-slate-50">
-      <div className="max-w-7xl mx-auto px-6">
+      <section className="py-16 sm:py-24 bg-gradient-to-b from-white to-slate-50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6">
 
         {/* Heading */}
-        <div className="text-center mb-16">
-          <span className="inline-block rounded-full bg-sky-100 px-5 py-2 text-sm font-semibold text-[#1C8BCA]">
+        <div className="text-center mb-10 sm:mb-16">
+          <span className="inline-block rounded-full bg-sky-100 px-4 sm:px-5 py-2 text-xs sm:text-sm font-semibold text-[#1C8BCA]">
             Testimonials
           </span>
 
-          <h2 className="mt-5 text-4xl md:text-5xl font-extrabold text-gray-900">
+          <h2 className="mt-4 sm:mt-5 text-3xl sm:text-4xl md:text-5xl font-extrabold text-gray-900">
             What Our
             <span className="text-[#1C8BCA]"> Students Say</span>
           </h2>
 
-          <p className="mt-5 max-w-2xl mx-auto text-lg text-gray-600">
+          <p className="mt-4 sm:mt-5 max-w-2xl mx-auto text-base sm:text-lg text-gray-600 px-2">
             Real feedback from our students who successfully completed training
             and started their IT careers.
           </p>
         </div>
 
         {/* Cards */}
-        <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-6 sm:gap-8 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
           {testimonials.map((item) => (
             <div
               key={item._id}
@@ -687,55 +687,55 @@ import ScrollReveal from "@/components/ScrollReveal";
     
 
 
-    <section className="py-24 bg-gradient-to-b from-slate-50 to-white">
-      <div className="max-w-7xl mx-auto px-6">
+    <section className="py-16 sm:py-24 bg-gradient-to-b from-slate-50 to-white">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6">
 
         {/* Heading */}
-        <div className="text-center mb-16">
-          <span className="inline-block rounded-full bg-sky-100 px-5 py-2 text-sm font-semibold text-[#1C8BCA]">
+        <div className="text-center mb-10 sm:mb-16">
+          <span className="inline-block rounded-full bg-sky-100 px-4 sm:px-5 py-2 text-xs sm:text-sm font-semibold text-[#1C8BCA]">
             Contact Us
           </span>
 
-          <h2 className="mt-5 text-4xl md:text-5xl font-extrabold text-gray-900">
+          <h2 className="mt-4 sm:mt-5 text-3xl sm:text-4xl md:text-5xl font-extrabold text-gray-900">
             Get In
             <span className="text-[#1C8BCA]"> Touch</span>
           </h2>
 
-          <p className="mt-5 max-w-2xl mx-auto text-lg text-gray-600">
-            Have questions about our courses or services? We’re here to help you
+          <p className="mt-4 sm:mt-5 max-w-2xl mx-auto text-base sm:text-lg text-gray-600 px-2">
+            Have questions about our courses or services? We're here to help you
             start your IT journey.
           </p>
         </div>
 
         {/* Grid */}
-        <div className="grid lg:grid-cols-2 gap-12">
+        <div className="grid lg:grid-cols-2 gap-8 sm:gap-12">
 
           {/* LEFT: Contact Info */}
-          <div className="space-y-6">
+          <div className="space-y-4 sm:space-y-6">
 
-            <div className="flex items-start gap-4 bg-white p-6 rounded-2xl shadow-md hover:shadow-xl transition">
-              <MapPin className="text-[#1C8BCA]" />
+            <div className="flex items-start gap-3 sm:gap-4 bg-white p-4 sm:p-6 rounded-2xl shadow-md hover:shadow-xl transition">
+              <MapPin className="text-[#1C8BCA] shrink-0" size={22} />
               <div>
-                <h3 className="font-bold text-gray-900">Address</h3>
-                <p className="text-gray-600 mt-1">
+                <h3 className="font-bold text-gray-900 text-sm sm:text-base">Address</h3>
+                <p className="text-gray-600 mt-1 text-sm sm:text-base leading-relaxed">
                 Bedkot Nagarpalika-3, Shamadaiji, Kanchanpur
                 </p>
               </div>
             </div>
 
-            <div className="flex items-start gap-4 bg-white p-6 rounded-2xl shadow-md hover:shadow-xl transition">
-              <Phone className="text-[#1C8BCA]" />
+            <div className="flex items-start gap-3 sm:gap-4 bg-white p-4 sm:p-6 rounded-2xl shadow-md hover:shadow-xl transition">
+              <Phone className="text-[#1C8BCA] shrink-0" size={22} />
               <div>
-                <h3 className="font-bold text-gray-900">Phone</h3>
-                <p className="text-gray-600 mt-1">+977-9867868324</p>
+                <h3 className="font-bold text-gray-900 text-sm sm:text-base">Phone</h3>
+                <p className="text-gray-600 mt-1 text-sm sm:text-base">+977-9867868324</p>
               </div>
             </div>
 
-            <div className="flex items-start gap-4 bg-white p-6 rounded-2xl shadow-md hover:shadow-xl transition">
-              <Mail className="text-[#1C8BCA]" />
+            <div className="flex items-start gap-3 sm:gap-4 bg-white p-4 sm:p-6 rounded-2xl shadow-md hover:shadow-xl transition">
+              <Mail className="text-[#1C8BCA] shrink-0" size={22} />
               <div>
-                <h3 className="font-bold text-gray-900">Email</h3>
-                <p className="text-gray-600 mt-1">skysolutions1987@gmail.com</p>
+                <h3 className="font-bold text-gray-900 text-sm sm:text-base">Email</h3>
+                <p className="text-gray-600 mt-1 text-sm sm:text-base break-all">skysolutions1987@gmail.com</p>
               </div>
             </div>
 
@@ -743,7 +743,7 @@ import ScrollReveal from "@/components/ScrollReveal";
             <div className="rounded-2xl overflow-hidden shadow-lg">
             <iframe
   src="https://www.google.com/maps?q=Bedkot+Nagarpalika-3+Shamadaiji+Kanchanpur+Nepal&output=embed"
-  className="w-full h-72 border-0"
+  className="w-full h-64 sm:h-72 border-0"
   loading="lazy"
   referrerPolicy="strict-origin-when-cross-origin"
   allowFullScreen
@@ -752,41 +752,41 @@ import ScrollReveal from "@/components/ScrollReveal";
           </div>
 
           {/* RIGHT: Contact Form */}
-          <div className="bg-white p-8 rounded-3xl shadow-lg">
+          <div className="bg-white p-5 sm:p-8 rounded-3xl shadow-lg">
 
-            <h3 className="text-2xl font-bold text-gray-900 mb-6">
+            <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-5 sm:mb-6">
               Send Message
             </h3>
 
-            <form className="space-y-5">
+            <form className="space-y-4 sm:space-y-5">
 
               <input
                 type="text"
                 placeholder="Your Name"
-                className="w-full p-4 rounded-xl border border-gray-200 focus:border-[#1C8BCA] outline-none"
+                className="w-full p-3.5 sm:p-4 rounded-xl border border-gray-200 focus:border-[#1C8BCA] outline-none text-sm sm:text-base"
               />
 
               <input
                 type="email"
                 placeholder="Your Email"
-                className="w-full p-4 rounded-xl border border-gray-200 focus:border-[#1C8BCA] outline-none"
+                className="w-full p-3.5 sm:p-4 rounded-xl border border-gray-200 focus:border-[#1C8BCA] outline-none text-sm sm:text-base"
               />
 
               <input
                 type="text"
                 placeholder="Subject"
-                className="w-full p-4 rounded-xl border border-gray-200 focus:border-[#1C8BCA] outline-none"
+                className="w-full p-3.5 sm:p-4 rounded-xl border border-gray-200 focus:border-[#1C8BCA] outline-none text-sm sm:text-base"
               />
 
               <textarea
-                rows="5"
+                rows="4"
                 placeholder="Your Message"
-                className="w-full p-4 rounded-xl border border-gray-200 focus:border-[#1C8BCA] outline-none"
+                className="w-full p-3.5 sm:p-4 rounded-xl border border-gray-200 focus:border-[#1C8BCA] outline-none text-sm sm:text-base"
               ></textarea>
 
               <button
                 type="submit"
-                className="w-full flex items-center justify-center gap-2 bg-[#1C8BCA] text-white font-semibold py-4 rounded-xl hover:bg-sky-700 transition"
+                className="w-full flex items-center justify-center gap-2 bg-[#1C8BCA] text-white font-semibold py-3.5 sm:py-4 rounded-xl hover:bg-sky-700 transition text-sm sm:text-base"
               >
                 Send Message
                 <Send size={18} />

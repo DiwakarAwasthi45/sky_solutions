@@ -1,9 +1,6 @@
 "use client";
 import { useEffect, useRef } from "react";
 import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-
-gsap.registerPlugin(ScrollTrigger);
 
 export default function AnimatedCounter({ from = 0, to, suffix = "", decimals = 0, className = "" }) {
   const el = useRef(null);
@@ -19,21 +16,28 @@ export default function AnimatedCounter({ from = 0, to, suffix = "", decimals = 
       val: to,
       duration: 2,
       ease: "power2.out",
+      paused: true,
       onUpdate: () => {
         elRef.textContent = obj.val.toFixed(decimals) + suffix;
       },
     });
 
-    ScrollTrigger.create({
-      trigger: elRef,
-      start: "top 85%",
-      onEnter: () => tween.play(),
-      once: true,
-    });
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            tween.play();
+            observer.disconnect();
+          }
+        });
+      },
+      { threshold: 0.1, rootMargin: "50px" }
+    );
 
-    tween.pause();
+    observer.observe(elRef);
 
     return () => {
+      observer.disconnect();
       tween.kill();
     };
   }, [from, to, suffix, decimals]);
