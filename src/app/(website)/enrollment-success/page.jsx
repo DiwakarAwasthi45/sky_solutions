@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { CheckCircle2, Home, GraduationCap, ArrowRight } from "lucide-react";
 
-export default function EnrollmentSuccessPage() {
+export default function page() {
   return (
     <section className="min-h-screen bg-gradient-to-br from-sky-50 via-white to-blue-100 flex items-center justify-center px-5">
       <div className="max-w-xl w-full bg-white rounded-3xl shadow-xl p-10 text-center">
@@ -51,7 +51,7 @@ export default function EnrollmentSuccessPage() {
 
           <Link
             href="/"
-            className="flex-1 flex justify-center items-center gap-2 bg-gray-100 hover:bg-gray-200 rounded-xl py-3 font-semibold transition"
+            className="flex-1 flex justify-center items-center gap-2 bg-gray-100 text-black hover:bg-gray-200 rounded-xl py-3 font-semibold transition"
           >
             <Home size={18} />
             Back to Home

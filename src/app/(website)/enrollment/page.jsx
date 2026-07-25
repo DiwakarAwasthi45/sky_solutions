@@ -192,6 +192,7 @@ export default function Page() {
               <input
                 type="date"
                 {...register("dob", { required: "DOB required" })}
+                 placeholder="DOB"
                 className="w-full bg-transparent outline-none text-gray-900 placeholder:text-gray-400"
               />
             </Input>
