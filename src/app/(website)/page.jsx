@@ -763,30 +763,30 @@ import ScrollReveal from "@/components/ScrollReveal";
               <input
                 type="text"
                 placeholder="Your Name"
-                className="w-full p-3.5 sm:p-4 rounded-xl border border-gray-200 focus:border-[#1C8BCA] outline-none text-sm sm:text-base"
+                className="w-full p-4 rounded-xl border-2 border-gray-300 focus:border-[#1C8BCA] outline-none text-base text-gray-900 placeholder:text-gray-500"
               />
 
               <input
                 type="email"
                 placeholder="Your Email"
-                className="w-full p-3.5 sm:p-4 rounded-xl border border-gray-200 focus:border-[#1C8BCA] outline-none text-sm sm:text-base"
+                className="w-full p-4 rounded-xl border-2 border-gray-300 focus:border-[#1C8BCA] outline-none text-base text-gray-900 placeholder:text-gray-500"
               />
 
               <input
                 type="text"
                 placeholder="Subject"
-                className="w-full p-3.5 sm:p-4 rounded-xl border border-gray-200 focus:border-[#1C8BCA] outline-none text-sm sm:text-base"
+                className="w-full p-4 rounded-xl border-2 border-gray-300 focus:border-[#1C8BCA] outline-none text-base text-gray-900 placeholder:text-gray-500"
               />
 
               <textarea
                 rows="4"
                 placeholder="Your Message"
-                className="w-full p-3.5 sm:p-4 rounded-xl border border-gray-200 focus:border-[#1C8BCA] outline-none text-sm sm:text-base"
+                className="w-full p-4 rounded-xl border-2 border-gray-300 focus:border-[#1C8BCA] outline-none text-base text-gray-900 placeholder:text-gray-500 resize-none"
               ></textarea>
 
               <button
                 type="submit"
-                className="w-full flex items-center justify-center gap-2 bg-[#1C8BCA] text-white font-semibold py-3.5 sm:py-4 rounded-xl hover:bg-sky-700 transition text-sm sm:text-base"
+                className="w-full flex items-center justify-center gap-2 bg-[#1C8BCA] text-white font-semibold py-4 rounded-xl hover:bg-sky-700 transition text-base"
               >
                 Send Message
                 <Send size={18} />
