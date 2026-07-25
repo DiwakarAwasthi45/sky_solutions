@@ -160,7 +160,7 @@ export default function Page() {
                 <input
                   {...register("fullName", { required: "Name is required" })}
                   placeholder="Full Name"
-                  className="w-full bg-transparent outline-none text-gray-900 placeholder:text-gray-500"
+                  className="w-full bg-white outline-none text-gray-900 placeholder:text-gray-500"
                 />
               </Input>
 
@@ -175,7 +175,7 @@ export default function Page() {
                     },
                   })}
                   placeholder="Email"
-                  className="w-full bg-transparent outline-none text-gray-900 placeholder:text-gray-500"
+                  className="w-full bg-white outline-none text-gray-900 placeholder:text-gray-500"
                 />
               </Input>
             </div>
@@ -199,7 +199,7 @@ export default function Page() {
             <Input icon={Users} error={errors.gender}>
               <select
                 {...register("gender", { required: "Gender required" })}
-                className="w-full bg-transparent outline-none text-gray-900"
+                className="w-full bg-white outline-none text-gray-900"
               >
                 <option value="">Select Gender</option>
                 <option>Male</option>
@@ -213,7 +213,7 @@ export default function Page() {
     {...register("course", {
       required: "Course required",
     })}
-    className="w-full bg-transparent outline-none text-gray-900"
+    className="w-full bg-white outline-none text-gray-900"
   >
     <option value="">
       {courseLoading ? "Loading Courses..." : "Select Course"}
@@ -231,7 +231,7 @@ export default function Page() {
             <Input icon={Clock} error={errors.batch}>
               <select
                 {...register("batch", { required: "Batch required" })}
-                className="w-full bg-transparent outline-none text-gray-900"
+                className="w-full bg-white outline-none text-gray-900"
               >
                 <option value="">Select Batch</option>
                 <option>Morning</option>
