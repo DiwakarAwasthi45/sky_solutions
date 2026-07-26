@@ -190,10 +190,10 @@ export default function Page() {
 
             <Input icon={Calendar} error={errors.dob}>
               <input
-                type="date"
+                type="text"
                 {...register("dob", { required: "DOB required" })}
-                 placeholder="DOB"
-                className="w-full bg-transparent outline-none text-gray-900 placeholder:text-gray-400"
+                placeholder="Date of Birth (DD/MM/YYYY)"
+                className="w-full bg-white outline-none text-gray-900 placeholder:text-gray-500"
               />
             </Input>
 
