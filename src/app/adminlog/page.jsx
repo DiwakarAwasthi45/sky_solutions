@@ -4,7 +4,8 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 import { toast } from "react-toastify";
-import { Mail, Lock, Eye, EyeOff, Loader2, ShieldCheck } from "lucide-react";
+import { Mail, Lock, Eye, EyeOff, ShieldCheck } from "lucide-react";
+import LoadingSpinner from "@/components/LoadingSpinner";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -112,7 +113,7 @@ export default function LoginPage() {
           >
             {loading ? (
               <>
-                <Loader2 size={18} className="animate-spin" />
+                <LoadingSpinner size={18} />
                 Logging in...
               </>
             ) : (

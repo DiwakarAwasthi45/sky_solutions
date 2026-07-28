@@ -5,7 +5,8 @@ import { useRouter } from "next/navigation";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { useForm } from "react-hook-form";
-import { Loader2, UploadCloud, Info, Settings2, ImagePlus } from "lucide-react";
+import { UploadCloud, Info, Settings2, ImagePlus } from "lucide-react";
+import LoadingSpinner from "@/components/LoadingSpinner";
 
 const inputBase =
   "w-full border rounded-lg p-3 outline-none transition focus:ring-2 focus:ring-[#1C8BCA]/30 focus:border-[#1C8BCA]";
@@ -264,7 +265,7 @@ export default function Page() {
               disabled={loading}
               className="bg-[#1C8BCA] text-white px-8 py-3 rounded-lg flex items-center gap-2 font-semibold hover:bg-sky-700 transition disabled:opacity-60 disabled:cursor-not-allowed"
             >
-              {loading && <Loader2 className="animate-spin" size={18} />}
+              {loading && <LoadingSpinner size={18} />}
               {loading ? "Creating..." : "Create Testimonial"}
             </button>
           </div>

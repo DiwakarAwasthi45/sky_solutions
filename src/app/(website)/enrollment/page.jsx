@@ -16,8 +16,8 @@ import {
   Users,
   Clock,
   CheckCircle2,
-  Loader2,
 } from "lucide-react";
+import LoadingSpinner from "@/components/LoadingSpinner";
 
 // Defined OUTSIDE the page component so its identity is stable across renders.
 // Defining this inside Page() used to recreate the component on every render,
@@ -263,7 +263,7 @@ export default function Page() {
             >
               {loading ? (
                 <>
-                  <Loader2 className="animate-spin" />
+                  <LoadingSpinner size={18} />
                   Submitting...
                 </>
               ) : (

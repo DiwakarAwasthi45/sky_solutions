@@ -11,6 +11,7 @@ import {
   Grid3X3,
   Images,
 } from "lucide-react";
+import LoadingSpinner from "@/components/LoadingSpinner";
 
 export default function GalleryPage() {
   const [gallery, setGallery] = useState([]);
@@ -145,12 +146,7 @@ export default function GalleryPage() {
       <section className="py-16">
         <div className="max-w-7xl mx-auto px-6">
           {loading ? (
-            <div className="text-center py-24">
-              <div className="w-14 h-14 rounded-full border-4 border-sky-200 border-t-sky-600 animate-spin mx-auto" />
-              <p className="mt-5 text-gray-500 font-medium">
-                Loading gallery...
-              </p>
-            </div>
+            <LoadingSpinner fullPage text="Loading gallery..." />
           ) : gallery.length === 0 ? (
             <div className="text-center py-24">
               <Camera

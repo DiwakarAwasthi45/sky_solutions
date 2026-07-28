@@ -9,10 +9,10 @@ import {
   Trash2,
   Plus,
   CalendarClock,
-  Loader2,
   AlertTriangle,
   Search,
 } from "lucide-react";
+import LoadingSpinner from "@/components/LoadingSpinner";
 
 export default function Page() {
   const [classes, setClasses] = useState([]);
@@ -119,11 +119,7 @@ export default function Page() {
                 {loading ? (
                   <tr>
                     <td colSpan="6" className="text-center py-20">
-                      <Loader2
-                        className="animate-spin mx-auto text-[#1C8BCA]"
-                        size={40}
-                      />
-                      <p className="mt-3 text-gray-500">Loading...</p>
+                      <LoadingSpinner fullPage text="Loading..." />
                     </td>
                   </tr>
                 ) : filteredClasses.length === 0 ? (

@@ -9,11 +9,11 @@ import {
   Trash2,
   Plus,
   MessageSquareQuote,
-  Loader2,
   AlertTriangle,
   Search,
   Star,
 } from "lucide-react";
+import LoadingSpinner from "@/components/LoadingSpinner";
 
 export default function Page() {
   const [testimonials, setTestimonials] = useState([]);
@@ -118,11 +118,7 @@ export default function Page() {
                 {loading ? (
                   <tr>
                     <td colSpan="6" className="text-center py-20">
-                      <Loader2
-                        className="animate-spin mx-auto text-[#1C8BCA]"
-                        size={40}
-                      />
-                      <p className="mt-3 text-gray-500">Loading...</p>
+                      <LoadingSpinner fullPage text="Loading..." />
                     </td>
                   </tr>
                 ) : filteredTestimonials.length === 0 ? (

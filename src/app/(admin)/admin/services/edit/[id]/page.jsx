@@ -6,7 +6,6 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import { useForm, useFieldArray } from "react-hook-form";
 import {
-  Loader2,
   UploadCloud,
   Info,
   Settings2,
@@ -15,6 +14,7 @@ import {
   Plus,
   Trash2,
 } from "lucide-react";
+import LoadingSpinner from "@/components/LoadingSpinner";
 
 const inputBase =
   "w-full border rounded-lg p-3 outline-none transition focus:ring-2 focus:ring-[#1C8BCA]/30 focus:border-[#1C8BCA]";
@@ -189,9 +189,7 @@ export default function Page() {
 
   if (fetchLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <Loader2 className="animate-spin text-[#1C8BCA]" size={40} />
-      </div>
+      <LoadingSpinner />
     );
   }
 
@@ -443,7 +441,7 @@ export default function Page() {
               disabled={loading}
               className="bg-[#1C8BCA] text-white px-8 py-3 rounded-lg flex items-center gap-2 font-semibold hover:bg-sky-700 transition disabled:opacity-60 disabled:cursor-not-allowed"
             >
-              {loading && <Loader2 className="animate-spin" size={18} />}
+              {loading && <LoadingSpinner size={18} />}
               {loading ? "Updating..." : "Update Service"}
             </button>
           </div>

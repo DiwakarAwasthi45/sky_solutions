@@ -22,6 +22,7 @@ import {
   Image,
   FileText,
 } from "lucide-react";
+import LoadingSpinner from "@/components/LoadingSpinner";
 
 const statCards = [
   {
@@ -132,12 +133,7 @@ export default function Page() {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-[70vh]">
-        <div className="text-center">
-          <div className="w-12 h-12 rounded-full border-4 border-sky-200 border-t-sky-600 animate-spin mx-auto"></div>
-          <p className="mt-4 text-gray-500 font-medium">Loading dashboard...</p>
-        </div>
-      </div>
+      <LoadingSpinner fullPage text="Loading dashboard..." />
     );
   }
 

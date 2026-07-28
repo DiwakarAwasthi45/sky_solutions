@@ -8,7 +8,6 @@ import { useForm, useFieldArray } from "react-hook-form";
 import {
   Plus,
   Trash2,
-  Loader2,
   UploadCloud,
   X,
   Info,
@@ -16,6 +15,7 @@ import {
   ImagePlus,
   ListChecks,
 } from "lucide-react";
+import LoadingSpinner from "@/components/LoadingSpinner";
 
 const inputBase =
   "w-full border rounded-lg p-3 outline-none transition focus:ring-2 focus:ring-[#1C8BCA]/30 focus:border-[#1C8BCA]";
@@ -184,9 +184,7 @@ export default function Page() {
 
   if (fetchLoading) {
     return (
-      <div className="h-screen flex justify-center items-center">
-        <Loader2 className="animate-spin" size={40} />
-      </div>
+      <LoadingSpinner />
     );
   }
 
@@ -321,7 +319,7 @@ export default function Page() {
             >
               {loading ? (
                 <>
-                  <Loader2 className="animate-spin" />
+                  <LoadingSpinner size={18} />
                   Updating...
                 </>
               ) : (

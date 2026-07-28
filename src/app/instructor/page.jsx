@@ -10,9 +10,9 @@ import {
   ClipboardList,
   Bell,
   LogOut,
-  Loader2,
   PlusCircle,
 } from "lucide-react";
+import LoadingSpinner from "@/components/LoadingSpinner";
 import { useRouter } from "next/navigation";
 
 export default function page() {
@@ -63,7 +63,7 @@ export default function page() {
   if (loading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-slate-50">
-        <Loader2 className="animate-spin text-[#1877AE]" size={36} />
+        <LoadingSpinner size={36} />
       </div>
     );
   }

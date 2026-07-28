@@ -8,7 +8,6 @@ import { useForm, useFieldArray } from "react-hook-form";
 import {
   Plus,
   Trash2,
-  Loader2,
   UploadCloud,
   X,
   Info,
@@ -16,6 +15,7 @@ import {
   ImagePlus,
   ListChecks,
 } from "lucide-react";
+import LoadingSpinner from "@/components/LoadingSpinner";
 
 
 const inputBase =
@@ -390,7 +390,7 @@ export default function page() {
               disabled={loading}
               className="bg-[#1C8BCA] text-white px-8 py-3 rounded-lg flex items-center gap-2 font-semibold hover:bg-sky-700 transition disabled:opacity-60 disabled:cursor-not-allowed"
             >
-              {loading && <Loader2 className="animate-spin" size={18} />}
+              {loading && <LoadingSpinner size={18} />}
               {loading ? "Creating..." : "Create Course"}
             </button>
           </div>

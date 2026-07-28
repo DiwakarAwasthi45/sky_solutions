@@ -9,10 +9,10 @@ import {
   Trash2,
   Plus,
   Images,
-  Loader2,
   AlertTriangle,
   Search,
 } from "lucide-react";
+import LoadingSpinner from "@/components/LoadingSpinner";
 
 export default function Page() {
   const [gallery, setGallery] = useState([]);
@@ -115,11 +115,7 @@ export default function Page() {
                 {loading ? (
                   <tr>
                     <td colSpan="4" className="text-center py-20">
-                      <Loader2
-                        className="animate-spin mx-auto text-[#1C8BCA]"
-                        size={40}
-                      />
-                      <p className="mt-3 text-gray-500">Loading...</p>
+                      <LoadingSpinner fullPage text="Loading..." />
                     </td>
                   </tr>
                 ) : filteredGallery.length === 0 ? (

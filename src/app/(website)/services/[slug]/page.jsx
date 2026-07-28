@@ -12,6 +12,7 @@ import {
   Phone,
   Clock,
 } from "lucide-react";
+import LoadingSpinner from "@/components/LoadingSpinner";
 
 export default function ServiceDetailPage() {
   const { slug } = useParams();
@@ -75,12 +76,7 @@ export default function ServiceDetailPage() {
   if (loading) {
     return (
       <div className="flex min-h-screen items-center justify-center">
-        <div className="flex flex-col items-center gap-3">
-          <div className="h-10 w-10 animate-spin rounded-full border-4 border-[#1877AE]/20 border-t-[#1877AE]" />
-          <p className="text-sm font-medium text-gray-500">
-            Loading service details...
-          </p>
-        </div>
+        <LoadingSpinner fullPage text="Loading service details..." />
       </div>
     );
   }

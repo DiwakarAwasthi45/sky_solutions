@@ -1,7 +1,8 @@
 'use client'
 
 import { useForm } from 'react-hook-form'
-import { Phone, Mail, MapPin, Send, Loader2 } from 'lucide-react'
+import { Phone, Mail, MapPin, Send } from 'lucide-react'
+import LoadingSpinner from '@/components/LoadingSpinner'
 import { toast } from 'react-toastify'
 
 export default function page() {
@@ -137,7 +138,7 @@ export default function page() {
               >
                 {isSubmitting ? (
                   <>
-                    <Loader2 size={18} className="animate-spin" />
+                    <LoadingSpinner size={18} />
                     Sending...
                   </>
                 ) : (

@@ -10,8 +10,8 @@ import {
   Calendar,
   Clock,
   CheckCircle2,
-  Loader2,
 } from "lucide-react";
+import LoadingSpinner from "@/components/LoadingSpinner";
 
 export default function Page() {
   const router = useRouter();
@@ -215,10 +215,7 @@ export default function Page() {
           >
             {loading ? (
               <>
-                <Loader2
-                  className="animate-spin"
-                  size={18}
-                />
+                <LoadingSpinner size={18} />
                 Creating...
               </>
             ) : (

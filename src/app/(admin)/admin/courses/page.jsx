@@ -9,10 +9,10 @@ import {
   Trash2,
   Plus,
   BookOpen,
-  Loader2,
   AlertTriangle,
   Search,
 } from "lucide-react";
+import LoadingSpinner from "@/components/LoadingSpinner";
 
 export default function Page() {
   const [courses, setCourses] = useState([]);
@@ -114,11 +114,7 @@ className="bg-[#0F5E8C] text-white px-5 py-3 rounded flex items-center gap-2 rou
                 {loading ? (
                   <tr>
                     <td colSpan="6" className="text-center py-20">
-                      <Loader2
-                        className="animate-spin mx-auto text-[#1C8BCA]"
-                        size={40}
-                      />
-                      <p className="mt-3 text-gray-500">Loading...</p>
+                      <LoadingSpinner fullPage text="Loading..." />
                     </td>
                   </tr>
                 ) : filteredCourses.length === 0 ? (
