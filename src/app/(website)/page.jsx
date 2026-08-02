@@ -9,6 +9,7 @@ import gsap from "gsap";
 import axios from "axios";
 import AnimatedCounter from "@/components/AnimatedCounter";
 import ScrollReveal from "@/components/ScrollReveal";
+import LoadingSpinner from "@/components/LoadingSpinner";
 
  function page() {
    const [facilities, setFacilities] = useState([]);
@@ -365,7 +366,12 @@ import ScrollReveal from "@/components/ScrollReveal";
 
     {/* Service Cards */}
     <div className="grid gap-6 sm:gap-8 sm:grid-cols-2 lg:grid-cols-3">
-      {services.map((service) => (
+      {loading ? (
+        <div className="col-span-3">
+          <LoadingSpinner fullPage text="Loading services..." />
+        </div>
+      ) : (
+      services.map((service) => (
         <div
           key={service._id}
           className="group overflow-hidden rounded-3xl bg-white shadow-lg transition-all duration-500 hover:-translate-y-3 hover:shadow-2xl"
@@ -404,7 +410,7 @@ import ScrollReveal from "@/components/ScrollReveal";
             </Link>
           </div>
         </div>
-      ))}
+      )))}
     </div>
 
     {/* Bottom CTA */}
@@ -526,7 +532,12 @@ import ScrollReveal from "@/components/ScrollReveal";
 
         {/* Images */}
         <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-          {gallery.map((item) => (
+          {loading ? (
+            <div className="col-span-3">
+              <LoadingSpinner fullPage text="Loading gallery..." />
+            </div>
+          ) : (
+          gallery.map((item) => (
             <div
               key={item._id}
               className="group relative overflow-hidden rounded-3xl shadow-lg"
@@ -545,7 +556,7 @@ import ScrollReveal from "@/components/ScrollReveal";
                 </h3>
               </div>
             </div>
-          ))}
+          )))}
         </div>
 
         {/* Button */}
@@ -583,7 +594,12 @@ import ScrollReveal from "@/components/ScrollReveal";
         </div>
 
     <div className="grid gap-6 sm:gap-8 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
-  {facilities.map((facility) => (
+  {loading ? (
+    <div className="col-span-4">
+      <LoadingSpinner fullPage text="Loading facilities..." />
+    </div>
+  ) : (
+  facilities.map((facility) => (
     <div
       key={facility._id}
       className="group rounded-3xl bg-white overflow-hidden shadow-lg transition-all duration-500 hover:-translate-y-3 hover:shadow-2xl"
@@ -608,7 +624,7 @@ import ScrollReveal from "@/components/ScrollReveal";
         </p>
       </div>
     </div>
-  ))}
+  )))}
 </div>
         {/* CTA */}
         <div className="mt-10 sm:mt-16 text-center">
@@ -646,7 +662,12 @@ import ScrollReveal from "@/components/ScrollReveal";
 
         {/* Cards */}
         <div className="grid gap-6 sm:gap-8 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
-          {testimonials.map((item) => (
+          {loading ? (
+            <div className="col-span-4">
+              <LoadingSpinner fullPage text="Loading testimonials..." />
+            </div>
+          ) : (
+          testimonials.map((item) => (
             <div
               key={item._id}
               className="group rounded-3xl bg-white p-6 shadow-lg transition-all duration-500 hover:-translate-y-3 hover:shadow-2xl"
@@ -679,7 +700,7 @@ import ScrollReveal from "@/components/ScrollReveal";
                 ))}
               </div>
             </div>
-          ))}
+          )))}
         </div>
       </div>
     </section>

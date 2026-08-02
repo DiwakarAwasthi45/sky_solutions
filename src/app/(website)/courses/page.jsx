@@ -5,6 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
+import LoadingSpinner from "@/components/LoadingSpinner";
 
 export default function Page() {
   const [courses, setCourses] = useState([]);
@@ -45,7 +46,7 @@ export default function Page() {
         </div>
 
         {loading ? (
-          <p className="text-center text-gray-600">Loading courses...</p>
+          <LoadingSpinner fullPage text="Loading courses..." />
         ) : (
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-10">
             {courses.map((course) => (

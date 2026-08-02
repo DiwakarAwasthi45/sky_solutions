@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { toast } from 'react-toastify';
+import LoadingSpinner from '@/components/LoadingSpinner';
 
 
 
@@ -56,7 +57,16 @@ export default function page() {
 
         {/* Cards */}
         <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
-          {upcoming.map((item) => (
+          {loading ? (
+            <div className="col-span-4">
+              <LoadingSpinner fullPage text="Loading upcoming classes..." />
+            </div>
+          ) : upcoming.length === 0 ? (
+            <div className="col-span-4 py-10 text-center text-gray-500">
+              No upcoming classes scheduled right now.
+            </div>
+          ) : (
+          upcoming.map((item) => (
             <div
               key={item._id}
               className="group rounded-3xl bg-white p-8 shadow-lg transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl"
@@ -92,7 +102,7 @@ export default function page() {
                 <ArrowRight size={18} />
               </Link>
             </div>
-          ))}
+          )))}
         </div>
 
         {/* Bottom CTA */}

@@ -7,6 +7,7 @@ import { toast } from "react-toastify";
 import { ArrowRight } from "lucide-react";
 import AnimatedCounter from "@/components/AnimatedCounter";
 import ScrollReveal from "@/components/ScrollReveal";
+import LoadingSpinner from "@/components/LoadingSpinner";
 
 export default function page() {
   const [services, setServices] = useState([]);
@@ -90,8 +91,8 @@ export default function page() {
 
           <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
             {loading ? (
-              <div className="col-span-3 py-20 text-center text-xl font-semibold">
-                Loading Services...
+              <div className="col-span-3">
+                <LoadingSpinner fullPage text="Loading services..." />
               </div>
             ) : services.length === 0 ? (
               <div className="col-span-3 py-20 text-center text-xl font-semibold">

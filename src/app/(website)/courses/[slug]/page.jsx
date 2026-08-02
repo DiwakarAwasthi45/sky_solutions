@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useEffect, useState, use } from "react";
 import { toast } from "react-toastify";
 import { Clock, Signal, ChevronDown, ArrowLeft } from "lucide-react";
+import LoadingSpinner from "@/components/LoadingSpinner";
 
 export default function Page({ params }) {
   const resolvedParams = use(params);
@@ -59,11 +60,8 @@ export default function Page({ params }) {
 
   if (loading) {
     return (
-      <section className="py-24 max-w-5xl mx-auto px-6 animate-pulse">
-        <div className="h-72 w-full bg-gray-200 rounded-3xl" />
-        <div className="h-8 bg-gray-200 rounded w-2/3 mt-8" />
-        <div className="h-4 bg-gray-200 rounded w-full mt-4" />
-        <div className="h-4 bg-gray-200 rounded w-5/6 mt-2" />
+      <section className="py-24 max-w-5xl mx-auto px-6">
+        <LoadingSpinner fullPage text="Loading course..." />
       </section>
     );
   }
