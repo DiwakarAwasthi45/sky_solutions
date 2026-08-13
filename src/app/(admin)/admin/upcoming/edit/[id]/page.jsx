@@ -5,23 +5,22 @@ import { useRouter, useParams } from "next/navigation";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { useForm } from "react-hook-form";
-import { UploadCloud, Info, Settings2, ImagePlus } from "lucide-react";
+import {
+  BookOpen,
+  Calendar,
+  Clock,
+  CheckCircle2,
+  MapPin,
+  GraduationCap,
+  User,
+  Users,
+  UploadCloud,
+} from "lucide-react";
 import LoadingSpinner from "@/components/LoadingSpinner";
 import EditModeBanner from "@/components/EditModeBanner";
 
 const inputBase =
   "w-full border rounded-lg p-3 outline-none transition focus:ring-2 focus:ring-[#1C8BCA]/30 focus:border-[#1C8BCA]";
-
-function SectionHeader({ icon: Icon, title }) {
-  return (
-    <div className="flex items-center gap-2.5 mb-6">
-      <div className="w-8 h-8 rounded-lg bg-sky-50 flex items-center justify-center text-[#1C8BCA]">
-        <Icon size={17} />
-      </div>
-      <h2 className="text-lg font-bold text-gray-900">{title}</h2>
-    </div>
-  );
-}
 
 export default function Page() {
   const router = useRouter();
@@ -39,24 +38,24 @@ export default function Page() {
     formState: { errors },
   } = useForm({
     defaultValues: {
+      title: "",
+      description: "",
+      date: "",
+      time: "",
+      venue: "",
+      course: "",
+      instructor: "",
+      maxSeats: 20,
+      seatsFilled: 0,
       status: "Open",
       isActive: true,
+      image: null,
     },
   });
-
-  const { onChange: onImageChange, ...imageRegister } = register("image");
 
   useEffect(() => {
     if (id) fetchUpcoming();
   }, [id]);
-
-  useEffect(() => {
-    return () => {
-      if (imagePreview?.startsWith("blob:")) {
-        URL.revokeObjectURL(imagePreview);
-      }
-    };
-  }, [imagePreview]);
 
   const fetchUpcoming = async () => {
     try {
@@ -64,13 +63,19 @@ export default function Page() {
       const upcoming = res.data.data;
 
       reset({
-        name: upcoming.name || "",
+        title: upcoming.title || "",
+        description: upcoming.description || "",
+        date: upcoming.date || "",
+        time: upcoming.time || "",
+        venue: upcoming.venue || "",
+        course: upcoming.course || "",
+        instructor: upcoming.instructor || "",
+        maxSeats: upcoming.maxSeats ?? 20,
+        seatsFilled: upcoming.seatsFilled ?? 0,
         status: upcoming.status || "Open",
         isActive: upcoming.isActive ?? true,
+        image: null,
       });
-
-      setValue("status", upcoming.status ? "true" : "false");
-      setValue("rating", String(upcoming.rating ?? 5));
 
       if (upcoming.image) {
         setImagePreview(upcoming.image);
@@ -79,7 +84,7 @@ export default function Page() {
       }
     } catch (error) {
       console.error(error);
-      toast.error("Failed to load upcoming event");
+      toast.error("Failed to load batch");
     } finally {
       setFetchLoading(false);
     }
@@ -88,36 +93,39 @@ export default function Page() {
   const handleImagePick = (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
-
-    if (imagePreview?.startsWith("blob:")) {
-      URL.revokeObjectURL(imagePreview);
-    }
-
     setImagePreview(URL.createObjectURL(file));
   };
 
-  const onSubmit = async (data) => {
+  const onSubmit = async (formData) => {
     try {
       setLoading(true);
 
-      const formData = new FormData();
-      formData.append("name", data.name);
-      formData.append("course", data.course);
-      formData.append("message", data.message);
-      formData.append("rating", data.rating);
-      formData.append("status", data.status);
+      const fd = new FormData();
+      fd.append("title", formData.title);
+      fd.append("description", formData.description || "");
+      fd.append("date", formData.date);
+      fd.append("time", formData.time);
+      fd.append("venue", formData.venue || "");
+      fd.append("course", formData.course || "");
+      fd.append("instructor", formData.instructor || "");
+      fd.append("maxSeats", String(formData.maxSeats));
+      fd.append("seatsFilled", String(formData.seatsFilled));
+      fd.append("status", formData.status);
+      fd.append("isActive", String(formData.isActive));
 
-      if (data.image?.[0]) {
-        formData.append("image", data.image[0]);
+      if (formData.image?.[0]) {
+        fd.append("image", formData.image[0]);
       }
 
-      const res = await axios.put(`/api/upcoming/${id}`, formData);
+      const res = await axios.put(`/api/upcoming/${id}`, fd, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
 
       if (res.data.success) {
-        toast.success("Upcoming event updated successfully");
+        toast.success("Batch updated successfully");
         router.push("/admin/upcoming");
       } else {
-        toast.error(res.data.message || "Failed to update upcoming event");
+        toast.error(res.data.message || "Failed to update batch");
       }
     } catch (error) {
       console.error(error);
@@ -128,179 +136,243 @@ export default function Page() {
   };
 
   if (fetchLoading) {
-    return (
-      <LoadingSpinner />
-    );
+    return <LoadingSpinner />;
   }
 
   return (
     <div className="min-h-screen bg-gray-50 py-10">
-      <div className="max-w-5xl mx-auto px-5">
+      <div className="max-w-3xl mx-auto px-5">
         <div className="mb-8">
           <h1 className="text-3xl font-extrabold text-gray-900">
-            Edit Upcoming Event
+            Edit Live Batch
           </h1>
           <p className="text-gray-500 mt-1">
-            Update the upcoming event details below.
+            Update the batch details below.
           </p>
         </div>
 
-        <EditModeBanner label="Upcoming Event" />
-  <form
-          onSubmit={handleSubmit(onSubmit)}
-          className="p-6 space-y-6"
-        >
-          {/* Title */}
-          <div>
-            <label className="block mb-2 text-sm font-medium">
-              Class Title
-            </label>
+        <div className="bg-white rounded-2xl border border-gray-200 shadow-sm">
+          <EditModeBanner label="Batch" />
 
-            <div className="flex items-center border border-gray-200 rounded-xl px-3">
-              <BookOpen
-                size={18}
-                className="text-gray-400"
-              />
+          <form onSubmit={handleSubmit(onSubmit)} className="p-6 space-y-6">
+            {/* Title */}
+            <div>
+              <label className="block mb-2 text-sm font-medium">
+                Batch Title <span className="text-red-500">*</span>
+              </label>
+              <div className="flex items-center border border-gray-200 rounded-xl px-3">
+                <BookOpen size={18} className="text-gray-400" />
+                <input
+                  type="text"
+                  placeholder="Basic Computer"
+                  {...register("title", { required: "Batch title is required" })}
+                  className="w-full p-3 outline-none"
+                />
+              </div>
+              {errors.title && (
+                <p className="text-red-500 text-sm mt-1">{errors.title.message}</p>
+              )}
+            </div>
 
-              <input
-                type="text"
-                placeholder="Basic Computer"
-                {...register("title", {
-                  required: "Class title is required",
-                })}
-                className="w-full p-3 outline-none"
+            {/* Description */}
+            <div>
+              <label className="block mb-2 text-sm font-medium">
+                Description
+              </label>
+              <textarea
+                rows={3}
+                placeholder="Short description of this batch..."
+                {...register("description")}
+                className={`${inputBase} border-gray-200`}
               />
             </div>
 
-            {errors.title && (
-              <p className="text-red-500 text-sm mt-1">
-                {errors.title.message}
-              </p>
-            )}
-          </div>
+            <div className="grid md:grid-cols-2 gap-6">
+              {/* Date */}
+              <div>
+                <label className="block mb-2 text-sm font-medium">
+                  Start Date <span className="text-red-500">*</span>
+                </label>
+                <div className="flex items-center border border-gray-200 rounded-xl px-3">
+                  <Calendar size={18} className="text-gray-400" />
+                  <input
+                    type="date"
+                    {...register("date", { required: "Date is required" })}
+                    className="w-full p-3 outline-none"
+                  />
+                </div>
+                {errors.date && (
+                  <p className="text-red-500 text-sm mt-1">{errors.date.message}</p>
+                )}
+              </div>
 
-          {/* Date */}
-          <div>
-            <label className="block mb-2 text-sm font-medium">
-              Date
-            </label>
+              {/* Time */}
+              <div>
+                <label className="block mb-2 text-sm font-medium">
+                  Time <span className="text-red-500">*</span>
+                </label>
+                <div className="flex items-center border border-gray-200 rounded-xl px-3">
+                  <Clock size={18} className="text-gray-400" />
+                  <input
+                    type="text"
+                    placeholder="7:00 AM - 9:00 AM"
+                    {...register("time", { required: "Time is required" })}
+                    className="w-full p-3 outline-none"
+                  />
+                </div>
+                {errors.time && (
+                  <p className="text-red-500 text-sm mt-1">{errors.time.message}</p>
+                )}
+              </div>
 
-            <div className="flex items-center border border-gray-200 rounded-xl px-3">
-              <Calendar
-                size={18}
-                className="text-gray-400"
-              />
+              {/* Venue */}
+              <div>
+                <label className="block mb-2 text-sm font-medium">Venue</label>
+                <div className="flex items-center border border-gray-200 rounded-xl px-3">
+                  <MapPin size={18} className="text-gray-400" />
+                  <input
+                    type="text"
+                    placeholder="Sky Solutions Computer Institute"
+                    {...register("venue")}
+                    className="w-full p-3 outline-none"
+                  />
+                </div>
+              </div>
 
-              <input
-                type="date"
-                {...register("date", {
-                  required: "Date is required",
-                })}
-                className="w-full p-3 outline-none"
-              />
+              {/* Course */}
+              <div>
+                <label className="block mb-2 text-sm font-medium">Course</label>
+                <div className="flex items-center border border-gray-200 rounded-xl px-3">
+                  <GraduationCap size={18} className="text-gray-400" />
+                  <input
+                    type="text"
+                    placeholder="e.g. Graphic Design"
+                    {...register("course")}
+                    className="w-full p-3 outline-none"
+                  />
+                </div>
+              </div>
+
+              {/* Instructor */}
+              <div>
+                <label className="block mb-2 text-sm font-medium">Instructor</label>
+                <div className="flex items-center border border-gray-200 rounded-xl px-3">
+                  <User size={18} className="text-gray-400" />
+                  <input
+                    type="text"
+                    placeholder="Instructor name"
+                    {...register("instructor")}
+                    className="w-full p-3 outline-none"
+                  />
+                </div>
+              </div>
+
+              {/* Max seats */}
+              <div>
+                <label className="block mb-2 text-sm font-medium">Max Seats</label>
+                <div className="flex items-center border border-gray-200 rounded-xl px-3">
+                  <Users size={18} className="text-gray-400" />
+                  <input
+                    type="number"
+                    {...register("maxSeats", { valueAsNumber: true })}
+                    className="w-full p-3 outline-none"
+                  />
+                </div>
+              </div>
+
+              {/* Seats filled */}
+              <div>
+                <label className="block mb-2 text-sm font-medium">
+                  Seats Already Filled
+                </label>
+                <div className="flex items-center border border-gray-200 rounded-xl px-3">
+                  <Users size={18} className="text-gray-400" />
+                  <input
+                    type="number"
+                    {...register("seatsFilled", { valueAsNumber: true })}
+                    className="w-full p-3 outline-none"
+                  />
+                </div>
+              </div>
+
+              {/* Status */}
+              <div>
+                <label className="block mb-2 text-sm font-medium">Status</label>
+                <select
+                  {...register("status")}
+                  className="w-full border border-gray-200 rounded-xl p-3 outline-none"
+                >
+                  <option value="Open">Open</option>
+                  <option value="Starting Soon">Starting Soon</option>
+                  <option value="Few Seats Left">Few Seats Left</option>
+                  <option value="Seats Full">Seats Full</option>
+                  <option value="Admission Closed">Admission Closed</option>
+                  <option value="Completed">Completed</option>
+                </select>
+              </div>
             </div>
 
-            {errors.date && (
-              <p className="text-red-500 text-sm mt-1">
-                {errors.date.message}
-              </p>
-            )}
-          </div>
-
-          {/* Time */}
-          <div>
-            <label className="block mb-2 text-sm font-medium">
-              Time
-            </label>
-
-            <div className="flex items-center border border-gray-200 rounded-xl px-3">
-              <Clock
-                size={18}
-                className="text-gray-400"
-              />
-
-              <input
-                type="text"
-                placeholder="7:00 AM - 9:00 AM"
-                {...register("time", {
-                  required: "Time is required",
-                })}
-                className="w-full p-3 outline-none"
-              />
+            {/* Image */}
+            <div>
+              <label className="block mb-2 text-sm font-medium">Batch Image</label>
+              <label className="flex flex-col items-center justify-center border-2 border-dashed rounded-xl p-6 cursor-pointer hover:border-[#1C8BCA]">
+                {imagePreview ? (
+                  <img
+                    src={imagePreview}
+                    alt="Batch preview"
+                    className="w-full h-40 object-cover rounded-lg"
+                  />
+                ) : (
+                  <>
+                    <UploadCloud className="text-gray-400" size={32} />
+                    <p className="text-sm text-gray-500 mt-2">
+                      Upload batch image
+                    </p>
+                  </>
+                )}
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  {...register("image")}
+                  onChange={(e) => {
+                    register("image").onChange(e);
+                    handleImagePick(e);
+                  }}
+                />
+              </label>
             </div>
 
-            {errors.time && (
-              <p className="text-red-500 text-sm mt-1">
-                {errors.time.message}
-              </p>
-            )}
-          </div>
+            {/* Active */}
+            <div className="flex items-center gap-3">
+              <input
+                type="checkbox"
+                {...register("isActive")}
+                className="h-5 w-5"
+              />
+              <label className="flex items-center gap-2 font-medium">
+                <CheckCircle2 size={18} className="text-green-600" />
+                Active
+              </label>
+            </div>
 
-          {/* Status */}
-          <div>
-            <label className="block mb-2 text-sm font-medium">
-              Status
-            </label>
-
-            <select
-              {...register("status", {
-                required: "Status is required",
-              })}
-              className="w-full border border-gray-200 rounded-xl p-3 outline-none"
+            {/* Submit */}
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full bg-[#1877AE] hover:bg-[#145f8b] text-white py-3 rounded-xl font-semibold transition disabled:opacity-50 flex justify-center items-center gap-2"
             >
-              <option value="Open">Open</option>
-              <option value="Starting Soon">
-                Starting Soon
-              </option>
-              <option value="Few Seats Left">
-                Few Seats Left
-              </option>
-              <option value="Admission Closed">
-                Admission Closed
-              </option>
-            </select>
-
-            {errors.status && (
-              <p className="text-red-500 text-sm mt-1">
-                {errors.status.message}
-              </p>
-            )}
-          </div>
-
-          {/* Active */}
-          <div className="flex items-center gap-3">
-            <input
-              type="checkbox"
-              {...register("isActive")}
-              className="h-5 w-5"
-            />
-
-            <label className="flex items-center gap-2 font-medium">
-              <CheckCircle2
-                size={18}
-                className="text-green-600"
-              />
-              Active
-            </label>
-          </div>
-
-          {/* Submit */}
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-[#1877AE] hover:bg-[#145f8b] text-white py-3 rounded-xl font-semibold transition disabled:opacity-50 flex justify-center items-center gap-2"
-          >
-            {loading ? (
-              <>
-                <LoadingSpinner size={18} />
-                Updating...
-              </>
-            ) : (
-              "Update Upcoming Event"
-            )}
-          </button>
-        </form>
-       
+              {loading ? (
+                <>
+                  <LoadingSpinner size={18} />
+                  Updating...
+                </>
+              ) : (
+                "Update Batch"
+              )}
+            </button>
+          </form>
+        </div>
       </div>
     </div>
   );

@@ -11,6 +11,7 @@ import {
   CalendarClock,
   AlertTriangle,
   Search,
+  Users,
 } from "lucide-react";
 import LoadingSpinner from "@/components/LoadingSpinner";
 
@@ -85,7 +86,7 @@ export default function Page() {
             className="bg-[#0F5E8C] text-white px-5 py-3 rounded flex items-center gap-2 rounded-xl hover:bg-[#0D4E6A] transition"
           >
             <Plus size={16} />
-            Add Class
+            Add Batch
           </Link>
         </div>
 
@@ -109,6 +110,7 @@ export default function Page() {
                   <th className="p-5 text-left">Class</th>
                   <th className="p-5">Date</th>
                   <th className="p-5">Time</th>
+                  <th className="p-5">Seats</th>
                   <th className="p-5">Status</th>
                   <th className="p-5">Active</th>
                   <th className="p-5">Action</th>
@@ -118,13 +120,13 @@ export default function Page() {
               <tbody>
                 {loading ? (
                   <tr>
-                    <td colSpan="6" className="text-center py-20">
+                    <td colSpan="7" className="text-center py-20">
                       <LoadingSpinner fullPage text="Loading..." />
                     </td>
                   </tr>
                 ) : filteredClasses.length === 0 ? (
                   <tr>
-                    <td colSpan="6" className="text-center py-20">
+                    <td colSpan="7" className="text-center py-20">
                       <CalendarClock className="mx-auto text-gray-400" size={45} />
                       <p className="text-gray-500 mt-3">No class found</p>
                     </td>
@@ -142,6 +144,12 @@ export default function Page() {
                       </td>
                       <td className="p-5 text-center">{item.date}</td>
                       <td className="p-5 text-center">{item.time}</td>
+                      <td className="p-5 text-center">
+                        <span className="inline-flex items-center gap-1">
+                          <Users size={14} className="text-[#1C8BCA]" />
+                          {item.seatsFilled ?? 0} / {item.maxSeats ?? 20}
+                        </span>
+                      </td>
                       <td className="p-5 text-center">
                         <span className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm">
                           {item.status}

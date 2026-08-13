@@ -143,6 +143,18 @@ export async function middleware(request) {
       return NextResponse.next();
     }
 
+    // Reserve seat — any authenticated user
+    if (pathname === "/api/upcoming/reserve") {
+      const valid = await isValidAnyUser(token);
+      if (!valid) {
+        return NextResponse.json(
+          { success: false, message: "Unauthorized" },
+          { status: 401 }
+        );
+      }
+      return NextResponse.next();
+    }
+
     // Write operations on content routes require admin
     if (method !== "GET") {
       const contentRoutes = [
