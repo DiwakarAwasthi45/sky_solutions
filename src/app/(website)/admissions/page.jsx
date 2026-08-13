@@ -8,7 +8,6 @@ import {
   Phone,
   CreditCard,
   GraduationCap,
-  CheckCircle2,
   ChevronDown,
   ArrowRight,
 } from 'lucide-react'
@@ -133,39 +132,6 @@ export default function AdmissionsPage() {
                 </div>
                 <h3 className="text-xl font-bold text-gray-900">{step.title}</h3>
                 <p className="mt-4 leading-7 text-gray-600">{step.description}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* REQUIREMENTS */}
-      <section className="py-20 bg-white">
-        <div className="mx-auto max-w-5xl px-6">
-          <div className="text-center mb-12">
-            <span className="inline-block rounded-full bg-sky-100 px-5 py-2 text-sm font-semibold text-[#1C8BCA]">
-              Documents Required
-            </span>
-            <h2 className="mt-5 text-3xl sm:text-4xl font-extrabold text-gray-900">
-              Bring These to <span className="text-[#1C8BCA]">Complete Admission</span>
-            </h2>
-          </div>
-
-          <div className="grid gap-5 sm:grid-cols-2">
-            {[
-              'A copy of Citizenship or birth certificate (for students)',
-              '2 passport-size photographs',
-              'SEE / SLC certificate copy (if applicable)',
-              'Guardian / parent contact details',
-              'Course admission fee (cash or bank transfer)',
-              'A valid phone number and email address',
-            ].map((item) => (
-              <div
-                key={item}
-                className="flex items-center gap-4 rounded-2xl border border-gray-200 bg-slate-50 p-5"
-              >
-                <CheckCircle2 size={24} className="shrink-0 text-[#1C8BCA]" />
-                <span className="text-gray-700 font-medium">{item}</span>
               </div>
             ))}
           </div>
