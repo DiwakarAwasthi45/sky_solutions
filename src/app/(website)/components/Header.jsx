@@ -9,6 +9,8 @@ const links = [
   { name: 'Home', href: '/' },
   { name: 'Courses', href: '/courses' },
   { name: 'Services', href: '/services' },
+  { name: 'Admissions', href: '/admissions' },
+  { name: 'Results', href: '/results' },
   { name: 'Upcoming Classes', href: '/upcoming' },
   { name: 'Gallery', href: '/gallery' },
   { name: 'About', href: '/about' },

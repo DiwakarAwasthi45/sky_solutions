@@ -7,6 +7,8 @@ const quickLinks = [
   { label: 'Home', href: '/' },
   { label: 'Courses', href: '/courses' },
   { label: 'Services', href: '/services' },
+  { label: 'Admissions', href: '/admissions' },
+  { label: 'Results', href: '/results' },
   { label: 'Contact', href: '/contact' },
 ]
 
@@ -139,6 +141,16 @@ export default function Footer() {
             All rights reserved.
             <span className="mx-2 text-white/20">·</span>
             <span className="text-[#00C8F8] font-medium">सीप सिकौँ, भविष्य बनाऔँ</span>
+          </div>
+
+          <div className="flex items-center gap-4">
+            <Link href="/privacy" className="text-[#8A9BB5] hover:text-white text-xs transition-colors duration-200">
+              Privacy
+            </Link>
+            <span className="text-white/20 text-xs">·</span>
+            <Link href="/terms" className="text-[#8A9BB5] hover:text-white text-xs transition-colors duration-200">
+              Terms
+            </Link>
           </div>
 
           {/* Partners row */}
