@@ -16,6 +16,7 @@ import {
   ListChecks,
 } from "lucide-react";
 import LoadingSpinner from "@/components/LoadingSpinner";
+import EditModeBanner from "@/components/EditModeBanner";
 
 const inputBase =
   "w-full border rounded-lg p-3 outline-none transition focus:ring-2 focus:ring-[#1C8BCA]/30 focus:border-[#1C8BCA]";
@@ -195,6 +196,8 @@ export default function Page() {
           <h1 className="text-3xl font-extrabold">Edit Course</h1>
           <p className="text-gray-500 mt-1">Update course information</p>
         </div>
+
+        <EditModeBanner label="Course" />
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           <section className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">

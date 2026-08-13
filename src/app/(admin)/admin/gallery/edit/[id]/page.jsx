@@ -7,6 +7,7 @@ import { toast } from "react-toastify";
 import { useForm } from "react-hook-form";
 import { UploadCloud, Info, Settings2, ImagePlus } from "lucide-react";
 import LoadingSpinner from "@/components/LoadingSpinner";
+import EditModeBanner from "@/components/EditModeBanner";
 
 const inputBase =
   "w-full border rounded-lg p-3 outline-none transition focus:ring-2 focus:ring-[#1C8BCA]/30 focus:border-[#1C8BCA]";
@@ -140,6 +141,8 @@ export default function Page() {
             Update the gallery details below.
           </p>
         </div>
+
+        <EditModeBanner label="Gallery" />
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           <section className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 md:p-8">

@@ -5,6 +5,7 @@ import { useRouter, useParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import axios from "axios";
 import { toast } from "react-toastify";
+import EditModeBanner from "@/components/EditModeBanner";
 
 export default function EditSettingsPage() {
   const router = useRouter();
@@ -105,6 +106,8 @@ export default function EditSettingsPage() {
   return (
     <div className="max-w-6xl mx-auto p-8 bg-white rounded-xl shadow mt-10">
       <h1 className="text-3xl font-bold mb-8">Edit Website Settings</h1>
+
+      <EditModeBanner label="Website Settings" />
 
       <form
         onSubmit={handleSubmit(onSubmit)}
