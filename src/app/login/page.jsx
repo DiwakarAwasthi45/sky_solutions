@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import axios from "axios";
 import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
@@ -10,7 +10,23 @@ import { Mail, Lock, Eye, EyeOff, UserCog } from "lucide-react";
 import LoadingSpinner from "@/components/LoadingSpinner";
 
 export default function page() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#1877AE] via-[#1C8BCA] to-[#0E5C89]">
+          <LoadingSpinner size={40} />
+        </div>
+      }
+    >
+      <LoginForm />
+    </Suspense>
+  );
+}
+
+function LoginForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const redirectTo = searchParams.get("redirect");
 
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -44,7 +60,9 @@ export default function page() {
 
       reset();
 
-      if (data.user.role === "admin") {
+      if (redirectTo) {
+        router.push(redirectTo);
+      } else if (data.user.role === "admin") {
         router.push("/admin");
       } else if (data.user.role === "instructor") {
         router.push("/instructor");

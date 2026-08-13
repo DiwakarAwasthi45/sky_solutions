@@ -54,6 +54,16 @@ export async function middleware(request) {
     }
   }
 
+  // === Login-required website pages ===
+  if (pathname === "/enrollment" || pathname === "/students") {
+    const valid = await isValidAnyUser(token);
+    if (!valid) {
+      const loginUrl = new URL("/login", request.url);
+      loginUrl.searchParams.set("redirect", pathname);
+      return NextResponse.redirect(loginUrl);
+    }
+  }
+
   // === Redirect logged-in users away from login/adminlog ===
   if (pathname === "/login" || pathname === "/adminlog") {
     const valid = await isValidAdmin(token);
@@ -186,6 +196,8 @@ export const config = {
   matcher: [
     "/admin/:path*",
     "/instructor/:path*",
+    "/enrollment",
+    "/students",
     "/login",
     "/adminlog",
     "/api/:path*",
