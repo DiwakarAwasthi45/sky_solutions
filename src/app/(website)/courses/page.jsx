@@ -6,6 +6,7 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import LoadingSpinner from "@/components/LoadingSpinner";
+import PageHero from "@/components/PageHero";
 
 export default function Page() {
   const [courses, setCourses] = useState([]);
@@ -34,7 +35,19 @@ export default function Page() {
   };
 
   return (
-    <section className="py-24 bg-gradient-to-b from-sky-50 via-white to-white">
+    <>
+      <PageHero
+        badge="Our Courses"
+        title="Professional IT Training"
+        highlight="Programs for Your Career"
+        description="Explore our range of job-oriented computer courses designed with practical, hands-on training — from basic computer skills to advanced web development and programming."
+        primaryCta="Enroll Now"
+        primaryHref="/enrollment"
+        secondaryCta="Admissions Process"
+        secondaryHref="/admissions"
+      />
+
+      <section className="py-24 bg-gradient-to-b from-sky-50 via-white to-white">
       <div className="max-w-7xl mx-auto px-6">
         <div className="text-center mb-14">
           <h2 className="text-4xl md:text-5xl font-extrabold text-gray-900">
@@ -101,5 +114,6 @@ export default function Page() {
         )}
       </div>
     </section>
+    </>
   );
 }

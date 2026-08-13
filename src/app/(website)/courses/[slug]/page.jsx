@@ -5,8 +5,9 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState, use } from "react";
 import { toast } from "react-toastify";
-import { Clock, Signal, ChevronDown, ArrowLeft } from "lucide-react";
+import { Clock, Signal, ChevronDown, ArrowLeft, GraduationCap, CalendarRange, DollarSign } from "lucide-react";
 import LoadingSpinner from "@/components/LoadingSpinner";
+import PageHero from "@/components/PageHero";
 
 export default function Page({ params }) {
   const resolvedParams = use(params);
@@ -87,18 +88,50 @@ export default function Page({ params }) {
   }
 
   return (
-    <section className="py-24 bg-gradient-to-b from-sky-50 via-white to-white">
-      <div className="max-w-5xl mx-auto px-6">
-        {/* Back link */}
-        <Link
-          href="/courses"
-          className="inline-flex items-center gap-2 text-sm text-gray-500 hover:text-[#1C8BCA] transition mb-8"
-        >
-          <ArrowLeft size={16} />
-          Back to courses
-        </Link>
+    <>
+      <PageHero
+        badge={`${course.level} Course`}
+        title={course.title}
+        description={course.description}
+      >
+        <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
+          <div className="flex items-center gap-2 rounded-xl border border-white/20 bg-white/10 px-5 py-2.5 text-sm font-medium text-white backdrop-blur-md">
+            <Clock size={16} className="text-yellow-300" />
+            {course.duration} Months
+          </div>
 
-        {/* Hero image */}
+          <div className="flex items-center gap-2 rounded-xl border border-white/20 bg-white/10 px-5 py-2.5 text-sm font-medium text-white backdrop-blur-md">
+            <Signal size={16} className="text-yellow-300" />
+            {course.level}
+          </div>
+
+          <div className="flex items-center gap-2 rounded-xl border border-white/20 bg-white/10 px-5 py-2.5 text-sm font-medium text-white backdrop-blur-md">
+            <DollarSign size={16} className="text-yellow-300" />
+            ${course.price}
+          </div>
+        </div>
+
+        <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
+          <Link
+            href="/enrollment"
+            className="inline-flex items-center gap-2.5 rounded-2xl bg-white px-7 py-3.5 font-semibold text-[#146A9A] shadow-xl transition duration-300 hover:-translate-y-1 hover:shadow-2xl"
+          >
+            Enroll Now
+            <GraduationCap size={18} />
+          </Link>
+          <Link
+            href="/courses"
+            className="inline-flex items-center gap-2 rounded-2xl border border-white/30 bg-white/10 px-7 py-3.5 font-semibold text-white backdrop-blur-md transition duration-300 hover:bg-white/20"
+          >
+            <ArrowLeft size={16} />
+            All Courses
+          </Link>
+        </div>
+      </PageHero>
+
+      <section className="py-24 bg-gradient-to-b from-sky-50 via-white to-white">
+      <div className="max-w-5xl mx-auto px-6">
+        {/* Course image */}
         <div className="relative h-72 md:h-96 w-full rounded-3xl overflow-hidden shadow-lg">
           <Image
             src={course.image}
@@ -107,41 +140,6 @@ export default function Page({ params }) {
             className="object-cover"
             priority
           />
-        </div>
-
-        {/* Title & meta */}
-        <div className="mt-10">
-          <span className="inline-block bg-[#1C8BCA]/10 text-[#1C8BCA] text-xs font-semibold px-3 py-1 rounded-full">
-            {course.level}
-          </span>
-
-          <h1 className="text-3xl md:text-5xl font-extrabold text-gray-900 mt-4">
-            {course.title}
-          </h1>
-
-          <p className="mt-4 text-gray-600 leading-7 max-w-3xl">
-            {course.description}
-          </p>
-
-          <div className="mt-6 flex flex-wrap items-center gap-6 text-gray-700">
-            <div className="flex items-center gap-2">
-              <Clock size={18} className="text-[#1C8BCA]" />
-              <span className="font-medium">{course.duration} Months</span>
-            </div>
-
-            <div className="flex items-center gap-2">
-              <Signal size={18} className="text-[#1C8BCA]" />
-              <span className="font-medium">{course.level}</span>
-            </div>
-
-            <div className="text-2xl font-bold text-[#1C8BCA]">
-              ${course.price}
-            </div>
-          </div>
-
-          <button className="mt-8 bg-[#1C8BCA] text-white px-8 py-3 rounded-xl font-semibold hover:bg-sky-700 transition">
-            Enroll Now
-          </button>
         </div>
 
         {/* Syllabus */}
@@ -194,5 +192,6 @@ export default function Page({ params }) {
         )}
       </div>
     </section>
+    </>
   );
 }

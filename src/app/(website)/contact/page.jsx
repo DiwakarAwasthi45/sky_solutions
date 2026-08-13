@@ -3,6 +3,7 @@
 import { useForm } from 'react-hook-form'
 import { Phone, Mail, MapPin, Send } from 'lucide-react'
 import LoadingSpinner from '@/components/LoadingSpinner'
+import PageHero from '@/components/PageHero'
 import { toast } from 'react-toastify'
 
 export default function page() {
@@ -41,7 +42,19 @@ export default function page() {
   }
 
   return (
-    <section className="py-24 bg-slate-50">
+    <>
+      <PageHero
+        badge="Contact Us"
+        title="We Are Here To"
+        highlight="Help You"
+        description="Have questions about our courses, services, or admissions? Reach out to us — our team is always ready to assist you on your learning journey."
+        primaryCta="Send a Message"
+        primaryHref="#contact-form"
+        secondaryCta="Call Now"
+        secondaryHref="tel:+9779867868324"
+      />
+
+      <section className="py-24 bg-slate-50" id="contact-form">
       <div className="max-w-7xl mx-auto px-6">
 
         {/* HEADING */}
@@ -190,5 +203,6 @@ export default function page() {
 
       </div>
     </section>
+    </>
   )
 }

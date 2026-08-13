@@ -118,34 +118,47 @@ export default function Page() {
 
   return (
     <section className="min-h-screen bg-gradient-to-br from-sky-50 via-white to-blue-100 py-10 sm:py-16">
-      <div className="max-w-7xl mx-auto px-4 sm:px-5 grid lg:grid-cols-2 gap-10 sm:gap-14">
-        {/* LEFT */}
-        <div>
-          <span className="inline-flex items-center gap-2 bg-sky-100 text-sky-700 px-5 py-2 rounded-full font-semibold">
-            <GraduationCap size={18} />
-            Sky Solution Institute
-          </span>
+      <div className="max-w-7xl mx-auto px-4 sm:px-5 grid lg:grid-cols-2 gap-10 sm:gap-14 items-center">
+        {/* LEFT - Dark hero panel */}
+        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#146A9A] via-[#1B8FD2] to-[#0B4F78] p-8 sm:p-10 lg:p-12">
+          <div className="absolute -left-24 top-0 h-64 w-64 rounded-full bg-cyan-300/20 blur-3xl" />
+          <div className="absolute -right-16 bottom-0 h-72 w-72 rounded-full bg-white/10 blur-3xl" />
+          <div
+            className="absolute inset-0 opacity-[0.06]"
+            style={{
+              backgroundImage:
+                "linear-gradient(to right, rgba(255,255,255,0.6) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,0.6) 1px, transparent 1px)",
+              backgroundSize: "48px 48px",
+            }}
+          />
 
-          <h1 className="text-3xl sm:text-4xl md:text-5xl font-black mt-8 text-gray-900">
-            Start Your
-            <span className="block text-sky-600">IT Career Today</span>
-          </h1>
+          <div className="relative">
+            <span className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-5 py-2 font-semibold text-white backdrop-blur-md">
+              <GraduationCap size={18} />
+              Sky Solution Institute
+            </span>
 
-          <p className="mt-6 text-lg text-gray-600">
-            Join Nepal's professional IT training institute. Learn practical
-            skills from experienced trainers.
-          </p>
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-black mt-8 text-white">
+              Start Your
+              <span className="block text-yellow-300">IT Career Today</span>
+            </h1>
 
-          <div className="mt-10 space-y-4">
-            {features.map((item) => (
-              <div
-                key={item}
-                className="bg-white rounded-xl p-4 shadow flex items-center gap-3"
-              >
-                <CheckCircle2 className="text-green-500" />
-                {item}
-              </div>
-            ))}
+            <p className="mt-6 text-lg text-blue-100">
+              Join Nepal's professional IT training institute. Learn practical
+              skills from experienced trainers.
+            </p>
+
+            <div className="mt-10 space-y-4">
+              {features.map((item) => (
+                <div
+                  key={item}
+                  className="flex items-center gap-3 rounded-xl border border-white/20 bg-white/10 px-5 py-4 text-white backdrop-blur-md"
+                >
+                  <CheckCircle2 className="text-yellow-300 shrink-0" />
+                  {item}
+                </div>
+              ))}
+            </div>
           </div>
         </div>
 
