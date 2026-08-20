@@ -143,12 +143,23 @@ export default function Page() {
         <div className="text-center">
           <AlertCircle className="mx-auto text-red-400" size={48} />
           <p className="mt-4 text-red-600 font-medium">{error}</p>
-          <button
-            onClick={() => window.location.reload()}
-            className="mt-3 px-4 py-2 bg-sky-600 text-white rounded-lg text-sm hover:bg-sky-700"
-          >
-            Retry
-          </button>
+          {error.includes("Unauthorized") || error.includes("Not authenticated") || error.includes("Invalid or expired session")
+            ? (
+              <button
+                onClick={() => window.location.href = "/adminlog"}
+                className="mt-3 px-4 py-2 bg-sky-600 text-white rounded-lg text-sm hover:bg-sky-700"
+              >
+                Re-login
+              </button>
+            )
+            : (
+              <button
+                onClick={() => window.location.reload()}
+                className="mt-3 px-4 py-2 bg-sky-600 text-white rounded-lg text-sm hover:bg-sky-700"
+              >
+                Retry
+              </button>
+            )}
         </div>
       </div>
     );
