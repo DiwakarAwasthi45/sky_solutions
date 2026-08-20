@@ -143,7 +143,7 @@ export default function Page() {
         <div className="text-center">
           <AlertCircle className="mx-auto text-red-400" size={48} />
           <p className="mt-4 text-red-600 font-medium">{error}</p>
-          {error.includes("Unauthorized") || error.includes("Not authenticated") || error.includes("Invalid or expired session")
+          {error.includes("Unauthorized") || error.includes("Not authenticated") || error.includes("Invalid or expired session") || error.includes("bad auth") || error.includes("authentication failed")
             ? (
               <button
                 onClick={() => window.location.href = "/adminlog"}
