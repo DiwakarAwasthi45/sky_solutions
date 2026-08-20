@@ -17,8 +17,9 @@ export async function GET() {
       { status: 200 }
     );
   } catch (error) {
+    console.error("Error fetching services:", error);
     return NextResponse.json(
-      { success: false, message: sanitizeError(error) },
+      { success: false, message: "Failed to load services. Please try again." },
       { status: 500 }
     );
   }
