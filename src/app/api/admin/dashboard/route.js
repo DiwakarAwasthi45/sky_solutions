@@ -69,8 +69,17 @@ export async function GET(request) {
       },
     });
   } catch (error) {
+    console.error("Admin dashboard error:", error);
+    const errorMessage = error.message || "Something went wrong";
+    // Check if it's a database connection error
+    if (errorMessage.includes("MongoConnection") || errorMessage.includes("ECONNREFUSED") || errorMessage.includes("ENOTFOUND")) {
+      return NextResponse.json(
+        { success: false, message: "Database connection failed. Please try again later." },
+        { status: 500 }
+      );
+    }
     return NextResponse.json(
-      { success: false, message: error.message || "Something went wrong" },
+      { success: false, message: errorMessage },
       { status: 500 }
     );
   }
